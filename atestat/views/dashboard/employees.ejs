@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="<%= model.title %>" content="Login/Sign up forms">
+  <meta name="viewport" content="width=device-width" initial-scale="1.0">
+  <link href="/public/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
+  <link rel="stylesheet" href="/public/font-awesome/css/font-awesome.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto|Ubuntu" rel="stylesheet">
+  <title><%= model.title %></title>
+</head>
+<body>
+  <% include ../partials/navbar.ejs %>
+  <% include ../partials/confirm_modal.ejs %>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <% include ../partials/left_navigation.ejs %>
+      </div>
+      <div class="col-md-9">
+        <div class="col-md-12">
+          <div class="panel panel-default no-border">
+            <div class="panel-heading grey">Administrators</div>
+            <table class="table administrators">
+              <tr>
+                <th>
+                  <span class="sorting-arrows">No.
+                   <i onclick="arrowSortDesc(this)" data-col="id" data-table="administrators" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)" data-col="id" data-table="administrators"  class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Username
+                    <i data-col="name" onclick="arrowSortDesc(this)" data-table="administrators"  class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)" data-col="name" data-table="administrators"  class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Email
+                    <i data-col="email" onclick="arrowSortDesc(this)" data-table="administrators"  class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="email" onclick="arrowSortAsc(this)" data-table="administrators"  class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Registration date
+                    <i onclick="arrowSortDesc(this)" data-col="registration_date" data-table="administrators"  class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="registration_date" onclick="arrowSortAsc(this)" data-table="administrators"  class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="panel panel-default no-border">
+            <div class="panel-heading grey">Employees</div>
+            <table class="table employees">
+              <tr>
+                <th>
+                  <span class="sorting-arrows">No.
+                    <i data-col="id" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="id" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">First name
+                    <i data-col="first_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="first_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Last name
+                    <i data-col="last_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="last_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Phone number
+                    <i data-col="phone_number" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="phone_number" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Hire date
+                    <i data-col="hire_date" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="hire_date" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Salary
+                    <i data-col="salary" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="salary" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Job
+                    <i data-col="job_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="job_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+                <th>
+                  <span class="sorting-arrows">Email
+                    <i data-col="email" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i data-col="email" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                  </span>
+                </th>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="panel panel-default no-border no-border">
+            <div class="panel-heading grey">Changes made to Employees table</div>
+            <div class="panel-body"></div>
+            <div class="panel-footer">
+              <nav aria-label="Changes navigation">
+                <ul class="pagination">
+                  <li>
+                    <a href="#" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                  <li><a href="#">1</a></li>
+                  <li><a href="#">2</a></li>
+                  <li><a href="#">3</a></li>
+                  <li><a href="#">4</a></li>
+                  <li><a href="#">5</a></li>
+                  <li>
+                    <a href="#" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="/public/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/public/js/functions.js"></script>
+  <script src="/public/js/employees.js"></script>
+</body>
+</html>
