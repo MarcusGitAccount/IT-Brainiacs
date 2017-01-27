@@ -10,18 +10,17 @@ const session = require('client-sessions');
 const https = require('https');
 const layouts = require('express-ejs-layouts');
 const app = express();
-let dblogic = require('./models/dblogic');
-let home = require('./routes/home');
-let api = require('./routes/api');
-let food = require('./routes/food');
-let dashboard = require('./routes/dashboard');
+const dblogic = require('./models/dblogic');
+const home = require('./routes/home');
+const api = require('./routes/api');
+const dashboard = require('./routes/dashboard');
 
 app.set('case sensivitive routing', false);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.locals.pretty = true;
 app.engine('ejs', require('ejs-locals'));
-app.set('layout extractScripts', true)
+app.set('layout extractScripts', true);
 app.use(session({
     'cookieName': 'session',
     'secret': 'Oh, you really want to know? Never!',
@@ -32,7 +31,6 @@ app.use(session({
   }));
 
 app.use('/public', express.static(path.join(__dirname, 'public')))
-app.use('/food', food());
 app.use('/api', api());
 app.use('/home', home());
 app.use('/dashboard', dashboard());
@@ -67,11 +65,11 @@ app.get('*', (request, response) => {
   });
 });
 
-let httpsServer = https.createServer({
+const httpsServer = https.createServer({
   'key': fs.readFileSync('SSL/key.pem').toString(),
   'cert': fs.readFileSync('SSL/cert.pem').toString()
 }, app);
 
-let listener = httpsServer.listen(8080, 'localhost', () => {
+const listener = httpsServer.listen(process.env.PORT, process.env.IP, () => {
   console.log('Server up and running on https://%s:%s', listener.address().address, listener.address().port);
 });

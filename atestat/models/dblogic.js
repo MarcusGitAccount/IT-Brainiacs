@@ -79,7 +79,7 @@ function deleteValue(table, where) {
 function selectAndSort(table, where) {
   let conditions = [];
   let conditionStr = '';
-
+  
   if (typeof(where) === 'object')
     Object.keys(where).forEach(key => conditions.push([key, where[key]].join(' ')));
 
@@ -124,7 +124,7 @@ function selectLogin(name) {
 }
 
 function selectSignUp(name, email) {
-  let statement = 'SELECT name, password, salt, email FROM administrators WHERE name=' + sqlString(name);
+  //let statement = 'SELECT name, password, salt, email FROM administrators WHERE name=' + sqlString(name);
 
   return new Promise((resolve, reject) => {
     db.serialize(() => {
