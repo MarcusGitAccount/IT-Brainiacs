@@ -284,10 +284,9 @@ table {
   padding: 5px 10px !important;
 }
 
-* {
-  transition: all .7s ease-in-out;
+.table-scroll {
+  overflow-x: scroll;
 }
 
-a:hover{
-    transform: scale(140%);
-}
+
+

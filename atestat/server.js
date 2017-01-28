@@ -70,6 +70,6 @@ const httpsServer = https.createServer({
   'cert': fs.readFileSync('SSL/cert.pem').toString()
 }, app);
 
-const listener = httpsServer.listen(process.env.PORT, process.env.IP, () => {
+const listener = httpsServer.listen(process.env.PORT, process.env.IP || '127.0.0.1', () => {
   console.log('Server up and running on https://%s:%s', listener.address().address, listener.address().port);
 });
