@@ -61,54 +61,59 @@
               <tr>
                 <th>
                   <span class="sorting-arrows">No.
-                    <i data-col="id" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="id" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="id" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="id" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
                 <th>
                   <span class="sorting-arrows">First name
-                    <i data-col="first_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="first_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="first_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="first_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
                 <th>
                   <span class="sorting-arrows">Last name
-                    <i data-col="last_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="last_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="last_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="last_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
                 <th>
                   <span class="sorting-arrows">Phone number
-                    <i data-col="phone_number" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="phone_number" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="phone_number" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="phone_number" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th><!--
                 <th>
                   <span class="sorting-arrows">Hire date
-                    <i data-col="hire_date" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="hire_date" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="hire_date" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="hire_date" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>-->
                 </th>
                 <th>
                   <span class="sorting-arrows">Salary
-                    <i data-col="salary" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="salary" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="salary" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="salary" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
                 <th>
                   <span class="sorting-arrows">Job
-                    <i data-col="job_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="job_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="job_name" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="job_name" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
                 <th>
                   <span class="sorting-arrows">Email
-                    <i data-col="email" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
-                    <i data-col="email" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
+                    <i onclick="arrowSortDesc(this)"  data-col="email" data-table="employees" class="fa fa-arrow-down" aria-hidden="true"></i>
+                    <i onclick="arrowSortAsc(this)"  data-col="email" data-table="employees" class="fa fa-arrow-up" aria-hidden="true"></i>
                   </span>
                 </th>
               </tr>
             </table>
+            <div class="table-logic-buttons">
+              <input type="button" value="Add employee" class="btn btn-grey btn-add-employee">
+              <input type="button" value="Save changes" disabled="disabled" class="btn btn-grey btn-save-changes">
+              <input type="button" value="Revert changes" disabled="disabled" class="btn btn-grey btn-revert-changes">
+            </div>
           </div>
         </div>
         <div class="col-md-12" style="width: 100% !important;">
@@ -117,22 +122,9 @@
             <div class="panel-body"></div>
             <div class="panel-footer">
               <nav aria-label="Changes navigation">
-                <ul class="pagination">
-                  <li>
-                    <a href="#" aria-label="Previous">
-                      <span aria-hidden="true">&laquo;</span>
-                    </a>
-                  </li>
-                  <li><a href="#">1</a></li>
-                  <li><a href="#">2</a></li>
-                  <li><a href="#">3</a></li>
-                  <li><a href="#">4</a></li>
-                  <li><a href="#">5</a></li>
-                  <li>
-                    <a href="#" aria-label="Next">
-                      <span aria-hidden="true">&raquo;</span>
-                    </a>
-                  </li>
+                <ul class="pager">
+                  <li><a href="#">Previous</a></li>
+                  <li><a href="#">Next</a></li>
                 </ul>
               </nav>
             </div>

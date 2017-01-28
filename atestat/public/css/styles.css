@@ -253,25 +253,25 @@ table {
 }
 
 
-.pagination>li>a,
-.pagination>li>span {
+.pager>li>a,
+.pager>li>span {
   border: 1px solid #455a64;
 }
-.pagination li > * {
+.pager li > * {
   margin: 0 10px;
 }
 
-.pagination li > a {
+.pager li > a {
   background: #455a64;
   color: #fff;
 }
 
-.pagination li.active>a {
+.pager li.active>a {
   background: #263238;
   color: #fff;
 }
 
-.pagination>li>a:hover {
+.pager>li>a:hover, .pager>li>a:focus {
   background: #263238;
   color: white;
 }
@@ -288,5 +288,32 @@ table {
   overflow-x: scroll;
 }
 
+.table-logic-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  border-top: 1px solid #263238;
+  padding: 15px 0; 
+}
 
+.table-logic-buttons > * {
+  margin: 0 7.5px;
+}
 
+td > input[type=text], td > input[type=email]  {
+  width: calc(12 * 9px);
+  border: none;
+}
+
+td > input[data-col=salary] {
+  width: calc(6 * 9px);
+}
+
+td > input[type=email]  {
+  width: calc(20 * 9px);
+}
+
+td > input[type=text]:focus, td > input[type=email]:focus  {
+  border-bottom: 1px solid #263238;
+  outline: none;
+}
