@@ -186,7 +186,7 @@ a:hover {
 .btn-grey:focus,
 .btn-grey:active,
 .btn-grey.active {
-  background-color: #1c2429;
+  background-color: black;
   border-color: #11171a;
   color: white;
 }
@@ -324,4 +324,8 @@ td > input[type=text]:focus, td > input[type=email]:focus  {
 
 .text-changed {
   color: red;
+}
+
+form#add-employee .form-group:not(:last-of-type) {
+  margin-bottom: 10px;
 }

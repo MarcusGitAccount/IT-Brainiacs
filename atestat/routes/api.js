@@ -8,10 +8,10 @@ module.exports = (() => {
   const bcrypt = require('bcryptjs');
   const express = require('express');
   const fs = require('fs');
-  let rootFolder = path.dirname(require.main.filename);
-  let upload = multer({'dest': path.join(rootFolder, '/public/upload')})
-  let dblogic = require('../models/dblogic');
-  let router = require('express').Router();
+  const rootFolder = path.dirname(require.main.filename);
+  const upload = multer({'dest': path.join(rootFolder, '/public/upload')})
+  const dblogic = require('../models/dblogic');
+  const router = require('express').Router();
   const url = require('url');
   const tables = dblogic.tables;
 

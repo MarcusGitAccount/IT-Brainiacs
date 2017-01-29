@@ -2,12 +2,12 @@
 'use strict';
 
 module.exports = (function() {
-  let router = require('express').Router();
-  let path = require('path');
-  let bcrypt = require('bcryptjs');
-  let session = require('client-sessions');
-  let dblogic = require('../models/dblogic');
-  let csrf = require('csurf');
+  const router = require('express').Router();
+  const path = require('path');
+  const bcrypt = require('bcryptjs');
+  const session = require('client-sessions');
+  const dblogic = require('../models/dblogic');
+  const csrf = require('csurf');
 
   router.use(require('body-parser').urlencoded({ 'extended': true}));
   router.use(require('body-parser').json());

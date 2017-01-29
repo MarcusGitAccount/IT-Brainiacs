@@ -55,25 +55,58 @@ function arrowSortDesc(i) {
 }
 
 const patternExpressions = {
+  'first_name': new RegExp(/[a-zA-Z-.]+/i),
+  'last_name': new RegExp(/[a-zA-Z-.]+/i),
   'phone_number': new RegExp(/[\d\s]+/i),
   'job_name': new RegExp(/[a-zA-Z\s]+/i),
   'email': new RegExp(/[\w]+@[\w]+\.[\w]+/i),
   'salary': new RegExp(/[\d\.]+/i)
 };
 
+function testForChanges() {
+  for (let index = 0; index < insideInputs.length; index++)
+    if (insideInputs[index].className.includes('text-changed'))
+      return true;
+  return false;
+}
+
+function toggleChangeButtons() {
+  if (testForChanges()) {
+    btnSaveChanges.removeAttribute('disabled');
+    btnUndoChanges.removeAttribute('disabled');
+    return ;
+  }
+  btnSaveChanges.setAttribute('disabled', 'disabled');
+  btnUndoChanges.setAttribute('disabled', 'disabled');
+}
+
 function textboxInput(e) {
   const pattern = patternExpressions[this.dataset.col];
   const matchedStr = this.value.trim().match(pattern);
-  this.classList.toggle('text-changed', this.value !== this.dataset.original);
 
+  this.classList.toggle('text-changed', this.value !== this.dataset.original);
+  toggleChangeButtons();
   if (!matchedStr || matchedStr[0] !== this.value) {
     wrongInput.classList.remove('hidden');
-
     wrongInput.innerHTML = `Invalid ${this.dataset.col.replace('_', ' ')}`;
   }
   else wrongInput.classList.add('hidden');
-  //console.log();
 }
 
+function undoChanges(e) {
+  insideInputs.forEach(input => { 
+    input.value = input.dataset.original;
+    input.classList.remove('text-changed');
+  });
+  wrongInput.classList.add('hidden');
+  btnSaveChanges.setAttribute('disabled', 'disabled');
+  btnUndoChanges.setAttribute('disabled', 'disabled');
+}
+
+function addEvents() {
+  btnUndoChanges.addEventListener('click', undoChanges);
+}
+
+addEvents();
 getAdmins();
 getEmployees();

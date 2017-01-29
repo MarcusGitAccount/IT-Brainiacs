@@ -9,9 +9,9 @@ module.exports = (function() {
   const express = require('express');
   const fs = require('fs');
   let router = express.Router();
-  let rootFolder = path.dirname(require.main.filename);
-  let upload = multer({'dest': path.join(rootFolder, '/public/upload')})
-  let dblogic = require('../models/dblogic');
+  const rootFolder = path.dirname(require.main.filename);
+  const upload = multer({'dest': path.join(rootFolder, '/public/upload')})
+  const dblogic = require('../models/dblogic');
 
   router.use(require('body-parser').urlencoded({ 'extended': true}));
   router.use(require('body-parser').json());
