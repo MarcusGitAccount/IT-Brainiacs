@@ -42,7 +42,7 @@ function insertColumns(table, data) {
 function sqlString(value) {
   return ["'", value, "'"].join('');
 }
-
+/*
 function updateTable(table, where, newValues) {
   let columns = [];
   let conditions = [];
@@ -59,6 +59,20 @@ function updateTable(table, where, newValues) {
   });
 
   return {statement: statement};
+}
+*/
+function updateTable(table, where, values) {
+  const columns = where.join(' ');
+  const statement = `update ${table}`;
+  /*
+  return new Promise(resolve, reject) {
+    db.serialize(() => {
+      db.run(statement, values, err => {
+        if (err)
+          return {error: err};
+      });
+    });    
+  };*/
 }
 
 function deleteValue(table, where) {

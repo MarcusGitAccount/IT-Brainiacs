@@ -101,6 +101,10 @@ module.exports = (() => {
   router.get('/employees/:id', (request, response) => {
     dblogic.selectById('employees', parseInt(request.params.id), 'first_name', 'last_name', 'email', 'phone_number', 'salary', 'job_name', 'hire_date').then(result => response.json(result));
   });
-
+  /*
+  router.post('/employees/update', (request, response) => {
+    dblogic.updateTable('employees', )
+  });
+*/
   return router;
 });

@@ -22,15 +22,15 @@ app.locals.pretty = true;
 app.engine('ejs', require('ejs-locals'));
 app.set('layout extractScripts', true);
 app.use(session({
-    'cookieName': 'session',
-    'secret': 'Oh, you really want to know? Never!',
-    'duration': 60 * 60 * 1000,
-    'activeDuration': 5 * 60 * 1000,
-    'httpOnly': true,
-    'ephemeral': true
-  }));
+  'cookieName': 'session',
+  'secret': 'Oh, you really want to know? Never!',
+  'duration': 60 * 60 * 1000,
+  'activeDuration': 5 * 60 * 1000,
+  'httpOnly': true,
+  'ephemeral': true
+}));
 
-app.use('/public', express.static(path.join(__dirname, 'public')))
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/api', api());
 app.use('/home', home());
 app.use('/dashboard', dashboard());
@@ -70,6 +70,8 @@ const httpsServer = https.createServer({
   'cert': fs.readFileSync('SSL/cert.pem').toString()
 }, app);
 
-const listener = httpsServer.listen(8080,/*process.env.PORT,*/ process.env.IP || '127.0.0.1', () => {
+const listener = app.listen(process.env.PORT, process.env.IP || '127.0.0.1', () => {
   console.log('Server up and running on https://%s:%s', listener.address().address, listener.address().port);
 });
+
+// root user: marcuspop
