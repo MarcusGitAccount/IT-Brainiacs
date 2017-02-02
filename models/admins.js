@@ -69,5 +69,37 @@ module.exports = {
         resolve(result, fields);
       });
     });
+  },
+  'update': (what, where) => {
+    const statement = mysql.format('update administrators set ? where ?', [what, where]);
+    
+    console.log(statement);
+    return new Promise((resolve, reject) => {
+      connection.query(statement, (error, result, fields) => {
+        if (error) {
+          reject(error);
+          console.log(error)
+          return ;
+        }
+        
+        resolve(result, fields);
+      });
+    });
+  },
+  'delete': (where) => {
+    const statement = mysql.format('delete from administrators where ?', where);
+    
+    console.log(statement);
+    return new Promise((resolve, reject) => {
+      connection.query(statement, (error, result, fields) => {
+        if (error) {
+          reject(error);
+          console.log(error)
+          return ;
+        }
+        
+        resolve(result, fields);
+      });
+    });
   }
 }

@@ -27,9 +27,23 @@ module.exports = (() => {
   });
   
   router.post('/admins', (request, response) => {
-    console.log(request.body);
     admins.insert({ 'name': request.body.name, 'password': request.body.password, 'email': request.body.email }).then(
       (result) => response.status(200).end(`Row succesfully inserted at position ${result.insertId}`),
+      (error) => response.json(error)
+    );
+  });
+  
+  router.put('/admins', (request, response) => {
+    admins.update(request.body.what, request.body.where).then().then(
+      (result) => response.status(200).end(`Changes made. Affected rows: ${result.affectedRows}. ${result.message}`),
+      (error) => response.json(error)
+    );
+  });
+  
+  router.delete('/admins', (request, response) => {
+    console.log(request.body);
+    admins.delete(request.body).then(
+      (result) => response.status(200).end(`Changes made. Affected rows: ${result.affectedRows}. ${result.message}`),
       (error) => response.json(error)
     );
   });
