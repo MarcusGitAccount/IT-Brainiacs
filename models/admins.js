@@ -1,7 +1,6 @@
 
-const express = require("express");
 const mysql = require("mysql");
-const router = express();
+const tableName = 'administrators';
 const connection = mysql.createConnection({
   'host': '0.0.0.0',
   'user': 'marcuspop',
@@ -9,6 +8,19 @@ const connection = mysql.createConnection({
   'database': 'food.db',
   'port': 3306
 });
+
+function prepareSQLConditionFromObject(data) {
+  const conditions = [];
+  const values = [];
+  
+  Object.keys(data).forEach(key => {
+    conditions.push('?? = ?');
+    values.push(key);
+    values.push(data[key]);
+  });
+  
+  return { conditions, values };
+}
 
 connection.connect();
 
@@ -26,18 +38,31 @@ module.exports = {
     });
   },
   'selectByColumns': (where) => {
-    const conditions = [];
-    const values = [];
-    
-    Object.keys(where).forEach(key => {
-      conditions.push(`${key} = ?`);
-      values.push(where[key]);
-    });
-    
+    const conditions = prepareSQLConditionFromObject(where).conditions;
+    const values = prepareSQLConditionFromObject(where).values;
+    values.splice(0, 0, 'administrators');
+    const statement = mysql.format(`select * from ?? where ${conditions.join(' ')}`, values);
+
     return new Promise((resolve, reject) => {
-      connection.query(`select * from administrators where ${conditions.join(' ')}`, values, (error, result, fields) => {
+      connection.query(statement, (error, result, fields) => {
         if (error) {
           reject(error);
+          return ;
+        }
+        
+        resolve(result, fields);
+      });
+    });
+  },
+  'insert': (data) => {
+    const statement = mysql.format(`insert into administrators set ?`, data);
+    
+    console.log(statement);
+    return new Promise((resolve, reject) => {
+      connection.query(statement, (error, result, fields) => {
+        if (error) {
+          reject(error);
+          console.log(error)
           return ;
         }
         
