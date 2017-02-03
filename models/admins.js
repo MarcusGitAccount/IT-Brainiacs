@@ -13,8 +13,9 @@ connection.connect();
 
 module.exports = {
   'selectAll': () => {
+    const statement = 'select * from administrators';
     return new Promise((resolve, reject) => {
-      connection.query('select * from administrators', (error, result, fields) => {
+      connection.query(statement, (error, result, fields) => {
         if (error) {
           reject(error);
           return ;
@@ -79,7 +80,6 @@ module.exports = {
       connection.query(statement, (error, result, fields) => {
         if (error) {
           reject(error);
-          console.log(error)
           return ;
         }
         
