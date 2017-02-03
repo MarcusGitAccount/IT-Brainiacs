@@ -9,19 +9,6 @@ const connection = mysql.createConnection({
   'port': 3306
 });
 
-function prepareSQLConditionFromObject(data) {
-  const conditions = [];
-  const values = [];
-  
-  Object.keys(data).forEach(key => {
-    conditions.push('?? = ?');
-    values.push(key);
-    values.push(data[key]);
-  });
-  
-  return { conditions, values };
-}
-
 connection.connect();
 
 module.exports = {
@@ -37,11 +24,9 @@ module.exports = {
       });
     });
   },
-  'selectByColumns': (where) => {
-    const conditions = prepareSQLConditionFromObject(where).conditions;
-    const values = prepareSQLConditionFromObject(where).values;
-    values.splice(0, 0, 'administrators');
-    const statement = mysql.format(`select * from ?? where ${conditions.join(' ')}`, values);
+  'selectByColumns': (where) => {/* ?? = ? */
+
+    const statement = mysql.format(`select * from administrators where ?`, where);
 
     return new Promise((resolve, reject) => {
       connection.query(statement, (error, result, fields) => {

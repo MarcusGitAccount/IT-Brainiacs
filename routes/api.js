@@ -43,7 +43,7 @@ module.exports = (() => {
   router.delete('/admins', (request, response) => {
     console.log(request.body);
     admins.delete(request.body).then(
-      (result) => response.status(200).end(`Changes made. Affected rows: ${result.affectedRows}. ${result.message}`),
+      (result) => response.status(200).end(`Changes made. Affected rows: ${result.affectedRows}.`),
       (error) => response.json(error)
     );
   });
