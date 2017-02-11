@@ -1,0 +1,32 @@
+{
+  "name": "it-brainiasc_project",
+  "version": "1.0.0",
+  "description": "Data processing for Pony users",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --harmony server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarcusGitAccount/IT-Brainiacs.git"
+  },
+  "keywords": [
+    "data",
+    "db",
+    "pony",
+    "google maps",
+    "users"
+  ],
+  "author": "Marcus Pop",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MarcusGitAccount/IT-Brainiacs/issues"
+  },
+  "homepage": "https://github.com/MarcusGitAccount/IT-Brainiacs#readme",
+  "dependencies": {
+    "express": "^4.14.1",
+    "mysql": "^2.13.0",
+    "rekuire": "^0.1.9"
+  }
+}
