@@ -19,6 +19,6 @@ module.exports = function singleton(config) {
   if (!instance) {
     instance = new DataBase(config);
   }
-
+  
   return instance;
 }

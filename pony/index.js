@@ -1,28 +1,28 @@
 'use strict';
-/*
-const config = require('./config');
+
 const express = require('express');
 
-const admin = require('./app/controllers/admin');
+const adminRoute = require('./app/routes/admins')();
+
 const app = express();
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
+app.use('/api/admins', adminRoute);
+
+const listener = app.listen(process.env.PORT, process.env.IP, () => {
+  console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
 
-app.get('/admin', admin.get);
-
-app.listen(8080, function () {
-  console.log('Example app listening on port 8080!');
-});*/
-
+/*
 const Administrator = require('./app/models/Administrators');
-const admins = new Administrator();
+const admins = new Administrator({id: 4, name: 'Smith', password: 'smith_pass_123_abc', email: 'smith@gmail.com'});
 
 console.log(admins);
 
-admins.selectAll((err, result, fields) => {
+admins.selectAll(2, 2, (err, result, fields) => {
   if (err)
     throw err;
   console.log(JSON.stringify(result, null, 2));
-})
+});
+*/
+
+// controller when rendering views, api when only getting data

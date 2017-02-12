@@ -2,10 +2,10 @@
   "name": "it-brainiasc_project",
   "version": "1.0.0",
   "description": "Data processing for Pony users",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --harmony server.js"
+    "start": "nodemon --harmony index.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/MarcusGitAccount/IT-Brainiacs#readme",
   "dependencies": {
+    "body-parser": "^1.16.1",
     "express": "^4.14.1",
     "mysql": "^2.13.0",
     "rekuire": "^0.1.9"

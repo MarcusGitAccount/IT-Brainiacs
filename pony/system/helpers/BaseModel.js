@@ -3,9 +3,10 @@
 const mysql = require('mysql');
 
 const config = require('../utils/config');
-const db = require('../database/db')(config.db);
+const db = require('../database/db')(config.db.connection);
 const DeepClone = require('../helpers/DeepClone');
 const constants = require('../utils/constants');
+
 const deepClone = new DeepClone();
 
 const _db = Symbol('_db');
@@ -25,6 +26,7 @@ class BaseModel {
     return constants;
   }
   
+  
   [_checkIfTableExists]() {
     if (!this.tableName || !this.constants.hasOwnProperty(this.tableName.toLowerCase()))
       throw 'Invalid table name.';
@@ -33,12 +35,15 @@ class BaseModel {
   query(statement, callback) {
     this[_db].getConnection((error, connection) => {
       if (error){
-        connection.release();
+        if (connection)
+          connection.release();
         callback(error);
+        
         return ;
       }
       
       connection.query(statement, (err, result, fields) => {
+        connection.release();
         callback(err, result, fields);
       })
     })
@@ -49,6 +54,20 @@ class BaseModel {
       return callback(new Error('Invalid data format'));
     }
     this.insert(this.data, callback);
+  }
+
+  tableSize(callback) {
+    this[_checkIfTableExists]();
+    
+    const statement = mysql.format('select count(*) as "size" from ??', this.tableName);
+    this.query(statement, (err, result, fields) => {
+      if (err) {
+        callback(err);
+        return ;
+      }
+
+      callback(null, result, fields);
+    });
   }
 
   selectAll(limit, offset, callback) {
@@ -77,9 +96,9 @@ class BaseModel {
   }
   
   selectAllByCondition(where, callback) {
-    const statement = mysql.format(`select * from administrators where ?`, where);
-    
     this[_checkIfTableExists]();
+    
+    const statement = mysql.format(`select * from ?? where ?`, [this.tableName, where]);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
@@ -96,7 +115,7 @@ class BaseModel {
     if (this.constants[this.tableName].auto_increment)
       delete data.id;
       
-    statement = mysql.format(`insert into administrators set ?`, data);
+    statement = mysql.format(`insert into ?? set ?`, [this.tableName, data]);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
@@ -108,10 +127,9 @@ class BaseModel {
   
   update(what, where, callback) {
     delete what.id;
-    
-    const statement = mysql.format('update administrators set ? where ?', [what, where]);
-
     this[_checkIfTableExists]();
+    
+    const statement = mysql.format('update ?? set ? where ?', [this.tableName, what, where]);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
@@ -122,9 +140,9 @@ class BaseModel {
   }
   
   delete(where, callback) {
-    const statement = mysql.format('delete from administrators where ?', where);
-    
     this[_checkIfTableExists]();
+
+    const statement = mysql.format('delete from ?? where ?', [this.tableName, where]);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
