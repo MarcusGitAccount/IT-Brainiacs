@@ -2,7 +2,7 @@
 
 const express = require('express');
 
-const adminRoute = require('./app/routes/admins')();
+const adminRoute = require('./app/routes/AdministratorsRouter')();
 
 const app = express();
 
@@ -12,17 +12,18 @@ const listener = app.listen(process.env.PORT, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
 
+
+
 /*
-const Administrator = require('./app/models/Administrators');
-const admins = new Administrator({id: 4, name: 'Smith', password: 'smith_pass_123_abc', email: 'smith@gmail.com'});
+const Entries = require('./app/models/Entries');
 
-console.log(admins);
+const entries = new Entries();
 
-admins.selectAll(2, 2, (err, result, fields) => {
+entries.selectAll((err, result, fields) => {
   if (err)
     throw err;
   console.log(JSON.stringify(result, null, 2));
 });
-*/
 
+*/
 // controller when rendering views, api when only getting data

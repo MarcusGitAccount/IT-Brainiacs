@@ -27,6 +27,7 @@
   "dependencies": {
     "body-parser": "^1.16.1",
     "express": "^4.14.1",
+    "express-ejs-layouts": "^2.2.0",
     "mysql": "^2.13.0",
     "rekuire": "^0.1.9"
   }

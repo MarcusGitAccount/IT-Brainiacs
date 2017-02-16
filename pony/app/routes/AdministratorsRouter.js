@@ -2,7 +2,8 @@
 
 const router = require('express').Router();
 const parser = require('body-parser');
-const AdministratorsAPI = require('../api/AdministratorsAPI');
+
+const AdministratorsAPI = require('../api/AdministratorsApi');
 
 const admins = new AdministratorsAPI();
 

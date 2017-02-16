@@ -13,7 +13,6 @@ class DeepClone {
   }
 
   [_deepClone](initial, key, path) {
-    'use strict';
     const object = initial[key] || initial;
 
     if ((typeof initial[key] !== 'object' || this[_checkIfCustomObject](initial[key])) && key !== undefined && key !== null) {

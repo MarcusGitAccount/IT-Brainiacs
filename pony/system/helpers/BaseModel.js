@@ -2,7 +2,7 @@
 
 const mysql = require('mysql');
 
-const config = require('../utils/config');
+const config = require('../../config');
 const db = require('../database/db')(config.db.connection);
 const DeepClone = require('../helpers/DeepClone');
 const constants = require('../utils/constants');
@@ -28,7 +28,7 @@ class BaseModel {
   
   
   [_checkIfTableExists]() {
-    if (!this.tableName || !this.constants.hasOwnProperty(this.tableName.toLowerCase()))
+    if (!this.tableName || !this.constants.tables.hasOwnProperty(this.tableName.toLowerCase()))
       throw 'Invalid table name.';
   }
   
@@ -53,7 +53,55 @@ class BaseModel {
     if (!this.data || Object.keys(this.data) === 0) {
       return callback(new Error('Invalid data format'));
     }
-    this.insert(this.data, callback);
+    
+    if (this.data.id) {
+      this.selectAllByCondition(this.data, (err, result, id) => {
+        if (err) {
+          callback(err);
+          return ;
+        }
+        
+        console.log(result);
+        if (result.length === 1) {
+          const currentId = this.data.id;
+          
+          this.update(this.data, {id: this.data.id}, callback);
+          this.data.id = currentId;
+        }
+        else {
+          try {
+            this.insert(this.data, (error, result, fields) => {
+              if (error) {
+                callback(error);
+                return ;
+              }
+              
+              this.data.id = result.insertId;
+              callback(null, result, fields);
+            });
+          }
+          catch (error) {
+            console.log(error);
+          }
+        }
+      });
+    }
+    else {
+      try {
+        this.insert(this.data, (error, result, fields) => {
+          if (error) {
+            callback(error);
+            return ;
+          }
+          
+          this.data.id = result.insertId;
+          callback(null, result, fields);
+        });
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
   }
 
   tableSize(callback) {
@@ -98,7 +146,10 @@ class BaseModel {
   selectAllByCondition(where, callback) {
     this[_checkIfTableExists]();
     
-    const statement = mysql.format(`select * from ?? where ?`, [this.tableName, where]);
+    let statement = mysql.format(`select * from ?? where ?`, [this.tableName, where]);
+    
+    statement = statement.replace(new RegExp(',', 'g'), ' AND ');
+    console.log(statement);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
