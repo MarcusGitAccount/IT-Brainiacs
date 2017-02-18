@@ -26,7 +26,6 @@ class BaseModel {
     return constants;
   }
   
-  
   [_checkIfTableExists]() {
     if (!this.tableName || !this.constants.tables.hasOwnProperty(this.tableName.toLowerCase()))
       throw 'Invalid table name.';
@@ -104,6 +103,20 @@ class BaseModel {
     }
   }
 
+  size(callback) {
+    this[_checkIfTableExists]();
+    
+    const statement = mysql.format('select count(id) as "size" from ??', this.tableName);
+    this.query(statement, (err, result, fields) => {
+      if (err) {
+        callback(err);
+        return ;
+      }
+
+      callback(null, result, fields);
+    });
+  }
+
   tableSize(callback) {
     this[_checkIfTableExists]();
     
@@ -132,7 +145,8 @@ class BaseModel {
       offset = this.constants.SKIP_MIN;
     }
     
-    statement = mysql.format('select * from ?? limit ? offset ?', [this.tableName, limit, offset]);
+    statement = mysql.format(`select * from ?? limit ${limit} offset ${offset}`, [this.tableName]);
+    console.log(statement);
     this[_checkIfTableExists]();
     this.query(statement, (err, result, fields) => {
       if (err) {
@@ -149,7 +163,6 @@ class BaseModel {
     let statement = mysql.format(`select * from ?? where ?`, [this.tableName, where]);
     
     statement = statement.replace(new RegExp(',', 'g'), ' AND ');
-    console.log(statement);
     this.query(statement, (err, result, fields) => {
       if (err) {
         callback(err);
@@ -163,7 +176,7 @@ class BaseModel {
     let statement = '';
     
     this[_checkIfTableExists]();
-    if (this.constants[this.tableName].auto_increment)
+    if (this.constants.tables[this.tableName].auto_increment)
       delete data.id;
       
     statement = mysql.format(`insert into ?? set ?`, [this.tableName, data]);

@@ -10,6 +10,9 @@ module.exports = {
     },
     dynaprice_entries: {
       auto_increment: true
+    },
+    entries: {
+      auto_increment: false
     }
   }
 }

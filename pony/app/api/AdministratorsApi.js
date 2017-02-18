@@ -3,7 +3,7 @@
 const Administrators = require('../models/Administrators');
 const admins = new Administrators();
 
-class AministratorsAPI {
+class AministratorsApi {
   get(request, response) {
     admins.selectAll((error, result, fields) => {
      if (error) {
@@ -60,5 +60,5 @@ class AministratorsAPI {
   }
 }
 
-module.exports = AministratorsAPI;
+module.exports = AministratorsApi;
 
