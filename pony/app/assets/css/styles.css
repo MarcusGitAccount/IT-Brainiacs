@@ -4,6 +4,13 @@
   padding: 0;
   font-family: 'Ubuntu', sans-serif !important;
   font-size: 16px;
+  color: white !important;
+}
+
+body {
+  background: #2b5876;
+  background: -webkit-linear-gradient(to left, #2b5876 , #4e4376);
+  background: linear-gradient(to left, #2b5876 , #4e4376);
 }
 
 #map {
