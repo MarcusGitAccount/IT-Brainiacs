@@ -12,11 +12,57 @@
 </head>
 <body>
   
-  <h1>Home page bitches</h1>
-
   <div class="container">
     <div class="row">
-      <div id="map" class="col-md-12 col-sm-12">
+      <div id="map" class="col-md-12 col-sm-12"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-inline">
+          <div class="form-group">
+            <input id="trip-id" type="text" class="form-control" id="" placeholder="Filter by trip id">
+          </div>
+          <button id="filter" type="button" class="btn btn-brown">Filter</button>
+          <button id="undo-filter" type="button" class="btn btn-brown">Undo filter</button>
+          <div class="form-group">
+            <input id="search-page-textbox" type="text" class="form-control" id="" placeholder="Search page in list">
+            <button id="search-page" type="button" class="btn btn-brown">Search</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12" style="width: 100% !important;">
+        <div class="panel panel-default no-border no-border">
+          <div class="panel-heading grey">Rows in table list</div>
+          <div class="panel-body">
+            <div class="list-content table-content">
+              <table class="table administrators">
+              <tr>
+                <th> Index </th>
+                <th> Car_qnr </th>
+                <th> Speed </th>
+                <th> Rate </th>
+                <th> Lat </th>
+                <th> Long </th>
+                <th> Timestamp </th>
+              </tr>
+            </table>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <nav aria-label="Changes navigation">
+              <ul class="pager">
+                <li id="prev"><a class="btn btn-brown" data-min="1" data-increment="-1" title="Previous page">Previous</a></li>
+                <li id="next"><a class="btn btn-brown" data-max="" data-increment="1" title="Next page">Next</a></li>
+              </ul>
+            </nav>
+            <div class="page-count">
+              <p>Current page: <span class="list-span" id="current-page">1</span></p>
+              <p>Pages available: <span class="list-span" id="pages-number"></span></p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -25,7 +71,6 @@
   <script src="/assets/js/home.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script src="/assets/js/functions.js"></script>
 </body>
 </html>
 

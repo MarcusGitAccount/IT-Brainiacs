@@ -13,6 +13,7 @@ module.exports = (function route() {
   
   router.get('/page', entries.page);
   router.get('/trip/:id', entries.trip);
+  router.get('/trip/:id/size', entries.tripSize);
   router.get('/size', entries.size);
   
   return router;

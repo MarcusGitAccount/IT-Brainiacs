@@ -20,13 +20,26 @@ class EntriesApi {
   }
   
   trip(request, response) {
-    entries.selectAllByCondition({trip_id: request.params.id}, (error, result, fields) => {
+    const query = url.parse(request.url, true).query;
+
+    entries.tripPagination({trip_id: request.params.id}, query.limit, query.offset, (error, result, fields) => {
       if (error) {
         response.status(204).end(error);
         return ;
       }
       
       response.status(200).json(result);
+    });
+  }
+  
+  tripSize(request, response) {
+    entries.tripSize({trip_id: request.params.id}, (error, result, fields) => {
+      if (error) {
+        response.status(204).end(error);
+        return ;
+      }
+      
+      response.status(200).json(result[0]);
     });
   }
   

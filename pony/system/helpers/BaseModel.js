@@ -32,6 +32,7 @@ class BaseModel {
   }
   
   query(statement, callback) {
+    this[_checkIfTableExists]();
     this[_db].getConnection((error, connection) => {
       if (error){
         if (connection)
