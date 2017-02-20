@@ -124,3 +124,7 @@ table th:last-of-type {
 table tr {
   text-align: center;
 }
+
+table, .panel-body {
+  overflow-x: scroll;
+}

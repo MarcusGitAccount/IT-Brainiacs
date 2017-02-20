@@ -149,10 +149,11 @@ function getJSON(url, callback) {
   ajax.send(null);
 }
 
+
 function initMap() {
   map = new google.maps.Map(document.querySelector('#map'), {
     center: {lat: 46.770439, lng: 23.591423},
-    zoom: 15,
+    zoom: 12,
     scrollwheel: false
   });
 
@@ -186,7 +187,9 @@ function showMarkers() {
 
 function clearMarkers() {
   setMarkers(null);
+  markers = [];
 }
+
 
 function populateTable(data) {
   while(tableContent.childElementCount > 1)
@@ -195,7 +198,6 @@ function populateTable(data) {
     tableContent.innerHTML += `<tr><td>${row.id + 1}</td><td>${row.car_qnr}</td><td>${row.trip_id}</td><td>${row.speed}</td><td>${row.rate}</td><td>${row.lat}</td><td>${row.lon}</td><td>${row.timestamp}</td></tr>`;
   });
 }
-
 
 function initList(trip_id = null) {
   const url = trip_id === null ? `/api/entries/` : `/api/entries/trip/${trip_id}/`;
@@ -211,7 +213,6 @@ function initList(trip_id = null) {
           addMarker({lat: row.lat, lng: row.lon});
       });
       showMarkers(map);
-      console.log(markers.length)
     });
   }
   
@@ -249,6 +250,7 @@ function pageButtonClick(e) {
   console.log(pagination.currentPage + parseInt(this.dataset.increment));
   getPage(pagination.currentPage + parseInt(this.dataset.increment), pagination.trip_id)
 }
+
 
 filterButton.addEventListener('click', (e) => {
   if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
