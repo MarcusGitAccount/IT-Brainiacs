@@ -24,6 +24,10 @@ app.use('/api/admins', adminRoute);
 app.use('/api/entries', entriesRoute);
 
 app.use('/home', homeRoute);
+app.use('*', (request, response) => {
+  response.status(404);
+  response.render('error.ejs');
+});
 
 const listener = app.listen(process.env.PORT || 8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);

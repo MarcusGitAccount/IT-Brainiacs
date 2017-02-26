@@ -136,11 +136,18 @@ let markers = [];
 let map;
 
 let mapEvents = {
-  polygonArray: [],
-  linesArray: [],
-  polygonPointsArray: [],
-  getPointsInPolygon:() => {
-    const polygon = mapEvents.polygonPointsArray.join(', ');
+  colors: ['#4a148c ', '#2196f3', '#00bfa5 ', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064'],
+  index: 0,
+  polygonArray: [[]],
+  linesArray: [[]],
+  polygonPointsArray: [[]],
+  latLng: [[]],
+  polygons: [],
+  infowindow:  new google.maps.InfoWindow({
+    content: '<p>This is some text in your marker</p>'
+  }),
+  getPointsInPolygon:(coords, callback) => {
+    const polygon = coords;
     const XHR = new XMLHttpRequest();
     
     XHR.open('POST', '/api/entries/inpolygon', true);
@@ -149,13 +156,14 @@ let mapEvents = {
       if (XHR.readyState === 4 && XHR.status === 200) {
         const response = JSON.parse(XHR.responseText);
         
-        console.log(JSON.stringify(response), response.length);
+        //console.log(response.length);
+        callback(null, response);
         return ;
       }
+      
+      callback(new Error('Error while retrieving data'));
     }
     XHR.send(JSON.stringify({polygon}));
-    
-    //console.log(polygon);
   }
 };
 
@@ -200,18 +208,18 @@ function addMarker(coords) {
   markers.push(marker);
 }
 
-function setMarkers(map) {
+function setMarkers(markers, map) {
   markers.forEach(marker => {
     marker.setMap(map);
   });
 }
 
 function showMarkers() {
-  setMarkers(map);
+  setMarkers(markers, map);
 }
 
-function clearMarkers() {
-  setMarkers(null);
+function clearMarkers(markers) {
+  setMarkers(markers, null);
   markers = [];
 }
 
@@ -227,7 +235,7 @@ function initList(trip_id = null) {
   const url = trip_id === null ? `/api/entries/` : `/api/entries/trip/${trip_id}/`;
   
   if (trip_id) {
-    clearMarkers();
+    clearMarkers(markers);
     getJSON(url, (error, data) => {
       if (error)
         return ;
@@ -283,8 +291,8 @@ function addMapEvents(map) {
       y: e.clientY - this.getBoundingClientRect().top
     }
     
-    if (e.which === 3)
-      console.log("Location:", clickLocationOnMap);
+    //if (e.which === 3)
+      //console.log("Location:", clickLocationOnMap);
   }
   
   function markerMouseOver(e) {
@@ -308,41 +316,92 @@ function addMapEvents(map) {
   }
   
   function markerMouseDoubleClick(e) {
-    mapEvents.polygonArray.splice(mapEvents.polygonArray.indexOf(this), 1);
+    mapEvents.polygonArray[mapEvents.index].splice(mapEvents.polygonArray[mapEvents.index].indexOf(this), 1);
     google.maps.event.clearInstanceListeners(this);
     this.setMap(null);
   }
   
   function markerMouseRightClick(e) {
-    console.log('nnnnn');
-    if (mapEvents.polygonPointsArray.length > 2) {
-      const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.polygonPointsArray.length - 1].split(' ')[0]);
-      const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.polygonPointsArray.length - 1].split(' ')[1]);
+    if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
+      const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[0]);
+      const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[1]);
       const pointA = new google.maps.LatLng(Ax, Ay);
       const pointB = new google.maps.LatLng(this.position.lat(), this.position.lng());
       
-      console.log(pointA, pointB);
-      
-      mapEvents.polygonPointsArray.push(`${this.position.lat()} ${this.position.lng()}`);
+      mapEvents.latLng[mapEvents.index].push(this.position);
+      mapEvents.polygonPointsArray[mapEvents.index].push(`${this.position.lat()} ${this.position.lng()}`);
       drawLine([pointA, pointB], map);
     }
   }
   
   function drawLine(path, map) {
+    
+    function polygonMoueOver(e) {
+      this.setOptions({fillOpacity: 0.65});
+      e.stop();
+    }
+    
+    function polygonMoueOut(e) {
+      this.setOptions({fillOpacity: 0.35});
+      e.stop();
+    }
+    
+    function polygonDoubleClick(e) {
+      this.setMap(null);
+      delete mapEvents.polygons[mapEvents.polygons.indexOf(this)];
+      e.stop();
+    }
+    
     const polyline = new google.maps.Polyline({
-        path: path,
-        strokeColor: "#00695c",
-        strokeOpacity: 1.0,
-        strokeWeight: 2.5,
-        map: map
+      path: path,
+      strokeColor: "#00695c",
+      strokeOpacity: 1.0,
+      strokeWeight: 2.5,
+      map: map
+    });
+    mapEvents.linesArray[mapEvents.index].push(polyline);
+
+    if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
+      if (mapEvents.polygonPointsArray[mapEvents.index][0] === mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1]) {
+        const coords = mapEvents.polygonPointsArray[mapEvents.index].join(', ');
+        
+        clearMarkers(mapEvents.polygonArray[mapEvents.index]);
+        clearMarkers(mapEvents.linesArray[mapEvents.index]);
+        
+        mapEvents.polygonArray.push([]);
+        mapEvents.polygonPointsArray.push([]);
+        mapEvents.linesArray.push([]);
+        mapEvents.latLng.push([]);
+        
+        const polygon = new google.maps.Polygon({
+          paths: mapEvents.latLng[mapEvents.index],
+          strokeColor: mapEvents.colors[mapEvents.index % mapEvents.colors.length],
+          strokeOpacity: 0.8,
+          strokeWeight: 3,
+          fillColor: '#e0e0e0',
+          fillOpacity: 0.35
+        });
+        
+        polygon.setMap(map);
+        google.maps.event.addListener(polygon, 'mouseover', polygonMoueOver);
+        google.maps.event.addListener(polygon, 'mouseout', polygonMoueOut);
+        google.maps.event.addListener(polygon, 'dblclick', polygonDoubleClick);
+        mapEvents.polygons.push(polygon);
+        mapEvents.index++;
+        
+        mapEvents.getPointsInPolygon(coords, (error, data) => {
+        if (error) 
+          return ;
+          
+        google.maps.event.addListener(polygon, 'click', (e) => {
+          mapEvents.infowindow.setPosition(e.latLng);
+          e.stop();
+        });
+        console.log(data.length);
+
       });
-      mapEvents.linesArray.push(polyline);
-    
-    mapEvents.linesArray.push(polyline);
-    
-    if (mapEvents.polygonPointsArray.length > 2)
-      if (mapEvents.polygonPointsArray[0] === mapEvents.polygonPointsArray[mapEvents.polygonPointsArray.length - 1])
-        mapEvents.getPointsInPolygon();
+      }
+    }
   }
   
   mapDiv.addEventListener('mousedown', mapDivMouseDown);
@@ -359,20 +418,21 @@ function addMapEvents(map) {
       },
       map: map
     });
-    mapEvents.polygonArray.push(marker);
+    mapEvents.polygonArray[mapEvents.index].push(marker);
     
-    if (mapEvents.polygonArray.length > 1) {
+    if (mapEvents.polygonArray[mapEvents.index].length > 1) {
       const index = mapEvents.polygonArray.indexOf(marker) - 1;
       
-      const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.polygonPointsArray.length - 1].split(' ')[0]);
-      const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.polygonPointsArray.length - 1].split(' ')[1]);
+      const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[0]);
+      const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[1]);
       const pointA = new google.maps.LatLng(Ax, Ay);
       const pointB = new google.maps.LatLng(e.latLng.lat(), e.latLng.lng());
       
       drawLine([pointA, pointB], map);
     }
     
-    mapEvents.polygonPointsArray.push(`${e.latLng.lat()} ${e.latLng.lng()}`);
+    mapEvents.latLng[mapEvents.index].push(e.latLng);
+    mapEvents.polygonPointsArray[mapEvents.index].push(`${e.latLng.lat()} ${e.latLng.lng()}`);
     
     google.maps.event.addListener(marker, 'mouseover', markerMouseOver);
     google.maps.event.addListener(marker, 'mouseout', markerMouseOut);
@@ -394,7 +454,7 @@ filterButton.addEventListener('click', (e) => {
 
 undoFilterButton.addEventListener('click', (e) => {
   if (pagination.trip_id !== null) {
-    clearMarkers();
+    clearMarkers(markers);
     initList();
   }
 });
