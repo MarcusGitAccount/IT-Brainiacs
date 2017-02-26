@@ -15,6 +15,7 @@ module.exports = (function route() {
   router.get('/trip/:id', entries.trip);
   router.get('/trip/:id/size', entries.tripSize);
   router.get('/size', entries.size);
+  router.post('/inpolygon', entries.tripsInPolygon);
   
   return router;
 });

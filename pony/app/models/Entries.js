@@ -52,6 +52,20 @@ class Entries extends BaseModel {
       callback(null, result, fields);
     });
   }
+  
+  tripsInPolygon(polygon, callback) {
+    const statement = mysql.format(`select lat, lon, trip_id from ?? where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))`, [this.tableName])
+    
+    console.log(statement);
+    this.query(statement, (err, result, fields) => {
+      if (err) {
+        callback(err);
+        return ;
+      }
+      
+      callback(null, result, fields);
+    });
+  }
 }
 
 module.exports = Entries;
