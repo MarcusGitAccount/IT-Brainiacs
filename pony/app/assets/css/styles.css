@@ -68,6 +68,7 @@ body {
   background: #2b5876;
   background: -webkit-linear-gradient(to left, #2b5876 , #4e4376);
   background: linear-gradient(to left, #2b5876 , #4e4376);
+  overflow-y: hidden;
 }
 
 #map {
@@ -141,4 +142,24 @@ table, .panel-body {
 .error-container > h1 {
   margin-top: 10vh;
   font-size: 32px;
+}
+
+#follower {
+  position: absolute;
+  background-color: #37474f;
+  color: #fff;
+  height: 45px;
+  width: 200px;
+  transform: translate(602px, 276px);
+  transition: .2s all;
+  display: none;
+  z-index: 1000;
+  font-size: 20px;
+  border: 1px solid #fff;
+}
+
+#follower.visible {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

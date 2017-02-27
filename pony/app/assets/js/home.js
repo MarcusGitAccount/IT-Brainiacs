@@ -122,6 +122,9 @@ const searchByIdTextBox = document.querySelector('#search-page-textbox');
 const searchByIdButton = document.querySelector('#search-page');
 const tableContent = document.querySelector('.table-content > table');
 const mapDiv = document.querySelector('#map');
+const follower = document.querySelector('#follower');
+const mapLimits = document.querySelector('#map').getBoundingClientRect();
+const followerLimits = follower.getBoundingClientRect();
 
 let pagination = {
   PAGE_SIZE: 25,
@@ -136,6 +139,13 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  tooltip: {
+    timeout: null,
+    timeoutTime: 5000,
+      clearToolTip: () => {
+      follower.classList.remove('visible');
+    }
+  },
   colors: ['#4a148c ', '#2196f3', '#00bfa5 ', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064'],
   index: 0,
   polygonArray: [[]],
@@ -143,9 +153,6 @@ let mapEvents = {
   polygonPointsArray: [[]],
   latLng: [[]],
   polygons: [],
-  infowindow:  new google.maps.InfoWindow({
-    content: '<p>This is some text in your marker</p>'
-  }),
   getPointsInPolygon:(coords, callback) => {
     const polygon = coords;
     const XHR = new XMLHttpRequest();
@@ -156,7 +163,6 @@ let mapEvents = {
       if (XHR.readyState === 4 && XHR.status === 200) {
         const response = JSON.parse(XHR.responseText);
         
-        //console.log(response.length);
         callback(null, response);
         return ;
       }
@@ -283,126 +289,144 @@ function pageButtonClick(e) {
   getPage(pagination.currentPage + parseInt(this.dataset.increment), pagination.trip_id)
 }
 
-function addMapEvents(map) {
+function mapDivMouseDown(e) {
+  const clickLocationOnMap = {
+    x: e.clientX - this.getBoundingClientRect().left,
+    y: e.clientY - this.getBoundingClientRect().top
+  }
   
-  function mapDivMouseDown(e) {
-    const clickLocationOnMap = {
-      x: e.clientX - this.getBoundingClientRect().left,
-      y: e.clientY - this.getBoundingClientRect().top
-    }
+  //if (e.which === 3)
+    //console.log("Location:", clickLocationOnMap);
+}
+
+function markerMouseOver(e) {
+  this.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 6,
+    strokeColor: '#00ff00',
+    fillColor: '#ffffff',
+    fillOpacity: 1
+  });
+}
+
+function markerMouseOut(e) {
+  this.setIcon({
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 4,
+    strokeColor: '#00ff00',
+    fillColor: '#ffffff',
+    fillOpacity: 1
+  });
+}
+
+function markerMouseDoubleClick(e) {
+  mapEvents.polygonArray[mapEvents.index].splice(mapEvents.polygonArray[mapEvents.index].indexOf(this), 1);
+  google.maps.event.clearInstanceListeners(this);
+  this.setMap(null);
+}
+
+function markerMouseRightClick(e) {
+  if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
+    const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[0]);
+    const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[1]);
+    const pointA = new google.maps.LatLng(Ax, Ay);
+    const pointB = new google.maps.LatLng(this.position.lat(), this.position.lng());
     
-    //if (e.which === 3)
-      //console.log("Location:", clickLocationOnMap);
+    mapEvents.latLng[mapEvents.index].push(this.position);
+    mapEvents.polygonPointsArray[mapEvents.index].push(`${this.position.lat()} ${this.position.lng()}`);
+    drawLine([pointA, pointB], map);
+  }
+}
+
+function polygonMoueOver(e) {
+  this.setOptions({fillOpacity: 0.65});
+  e.stop();
+}
+
+function polygonMoueOut(e) {
+  this.setOptions({fillOpacity: 0.35});
+  e.stop();
+}
+
+function polygonRightClick(e) {
+  this.setMap(null);
+  delete mapEvents.polygons[mapEvents.polygons.indexOf(this)];
+  mapEvents.tooltip.clearToolTip();
+  e.stop();
+}
+
+function polygonClick(e) {
+  const position = {
+    x: e.ya.x,
+    y: e.ya.y
   }
   
-  function markerMouseOver(e) {
-    this.setIcon({
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 6,
-      strokeColor: '#00ff00',
-      fillColor: '#ffffff',
-      fillOpacity: 1
-    });
-  }
+  if (e.ya.x + followerLimits.width > mapLimits.right)
+    position.x  = mapLimits.right - followerLimits.width;
+  if (e.ya.y + followerLimits.height > mapLimits.bottom)
+    position.y = mapLimits.bottom - followerLimits.height;
   
-  function markerMouseOut(e) {
-    this.setIcon({
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: 4,
-      strokeColor: '#00ff00',
-      fillColor: '#ffffff',
-      fillOpacity: 1
-    });
-  }
-  
-  function markerMouseDoubleClick(e) {
-    mapEvents.polygonArray[mapEvents.index].splice(mapEvents.polygonArray[mapEvents.index].indexOf(this), 1);
-    google.maps.event.clearInstanceListeners(this);
-    this.setMap(null);
-  }
-  
-  function markerMouseRightClick(e) {
-    if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
-      const Ax = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[0]);
-      const Ay = parseFloat(mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1].split(' ')[1]);
-      const pointA = new google.maps.LatLng(Ax, Ay);
-      const pointB = new google.maps.LatLng(this.position.lat(), this.position.lng());
+  clearTimeout(mapEvents.tooltip.timeout);
+  follower.style.transform = `translate(${position.x}px, ${position.y}px)`;
+  follower.classList.add('visible');
+  follower.innerHTML =  this['data'] === undefined ? `<p>'waiting for data'</p>` : `<p>${this['data'].records} records</p>`;
+  mapEvents.tooltip.timeout = setTimeout(() => {
+    follower.classList.remove('visible');
+  }, mapEvents.tooltip.timeoutTime);
+}
+
+function drawLine(path, map) {
+  const polyline = new google.maps.Polyline({
+    path: path,
+    strokeColor: "#00695c",
+    strokeOpacity: 1.0,
+    strokeWeight: 2.5,
+    map: map
+  });
+  mapEvents.linesArray[mapEvents.index].push(polyline);
+
+  if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
+    if (mapEvents.polygonPointsArray[mapEvents.index][0] === mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1]) {
+      const coords = mapEvents.polygonPointsArray[mapEvents.index].join(', ');
       
-      mapEvents.latLng[mapEvents.index].push(this.position);
-      mapEvents.polygonPointsArray[mapEvents.index].push(`${this.position.lat()} ${this.position.lng()}`);
-      drawLine([pointA, pointB], map);
-    }
-  }
-  
-  function drawLine(path, map) {
-    
-    function polygonMoueOver(e) {
-      this.setOptions({fillOpacity: 0.65});
-      e.stop();
-    }
-    
-    function polygonMoueOut(e) {
-      this.setOptions({fillOpacity: 0.35});
-      e.stop();
-    }
-    
-    function polygonDoubleClick(e) {
-      this.setMap(null);
-      delete mapEvents.polygons[mapEvents.polygons.indexOf(this)];
-      e.stop();
-    }
-    
-    const polyline = new google.maps.Polyline({
-      path: path,
-      strokeColor: "#00695c",
-      strokeOpacity: 1.0,
-      strokeWeight: 2.5,
-      map: map
-    });
-    mapEvents.linesArray[mapEvents.index].push(polyline);
-
-    if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
-      if (mapEvents.polygonPointsArray[mapEvents.index][0] === mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1]) {
-        const coords = mapEvents.polygonPointsArray[mapEvents.index].join(', ');
-        
-        clearMarkers(mapEvents.polygonArray[mapEvents.index]);
-        clearMarkers(mapEvents.linesArray[mapEvents.index]);
-        
-        mapEvents.polygonArray.push([]);
-        mapEvents.polygonPointsArray.push([]);
-        mapEvents.linesArray.push([]);
-        mapEvents.latLng.push([]);
-        
-        const polygon = new google.maps.Polygon({
-          paths: mapEvents.latLng[mapEvents.index],
-          strokeColor: mapEvents.colors[mapEvents.index % mapEvents.colors.length],
-          strokeOpacity: 0.8,
-          strokeWeight: 3,
-          fillColor: '#e0e0e0',
-          fillOpacity: 0.35
-        });
-        
-        polygon.setMap(map);
-        google.maps.event.addListener(polygon, 'mouseover', polygonMoueOver);
-        google.maps.event.addListener(polygon, 'mouseout', polygonMoueOut);
-        google.maps.event.addListener(polygon, 'dblclick', polygonDoubleClick);
-        mapEvents.polygons.push(polygon);
-        mapEvents.index++;
-        
-        mapEvents.getPointsInPolygon(coords, (error, data) => {
-        if (error) 
-          return ;
-          
-        google.maps.event.addListener(polygon, 'click', (e) => {
-          mapEvents.infowindow.setPosition(e.latLng);
-          e.stop();
-        });
-        console.log(data.length);
-
+      clearMarkers(mapEvents.polygonArray[mapEvents.index]);
+      clearMarkers(mapEvents.linesArray[mapEvents.index]);
+      
+      mapEvents.polygonArray.push([]);
+      mapEvents.polygonPointsArray.push([]);
+      mapEvents.linesArray.push([]);
+      mapEvents.latLng.push([]);
+      
+      const polygon = new google.maps.Polygon({
+        paths: mapEvents.latLng[mapEvents.index],
+        strokeColor: mapEvents.colors[mapEvents.index % mapEvents.colors.length],
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        fillColor: '#e0e0e0',
+        fillOpacity: 0.35
       });
+      
+      polygon.setMap(map);
+      google.maps.event.addListener(polygon, 'mouseover', polygonMoueOver);
+      google.maps.event.addListener(polygon, 'mouseout', polygonMoueOut);
+      google.maps.event.addListener(polygon, 'rightclick', polygonRightClick);
+      google.maps.event.addListener(polygon, 'click', polygonClick);
+      mapEvents.polygons.push(polygon);
+      mapEvents.index++;
+      
+      mapEvents.getPointsInPolygon(coords, (error, data) => {
+      if (error) 
+        return ;
+      
+      polygon['data'] = {
+        records: data.length || 0
       }
+    });
     }
   }
+}
+
+function addMapEvents(map) {
   
   mapDiv.addEventListener('mousedown', mapDivMouseDown);
   
@@ -439,10 +463,13 @@ function addMapEvents(map) {
     google.maps.event.addListener(marker, 'dblclick', markerMouseDoubleClick);
     google.maps.event.addListener(marker, 'rightclick', markerMouseRightClick);
   });
-  
   map.addListener('mousemove', (e) => {
 
   });
+  map.addListener('drag', mapEvents.tooltip.clearToolTip);
+  map.addListener('bounds_changed', mapEvents.tooltip.clearToolTip);
+  map.addListener('center_changed', mapEvents.tooltip.clearToolTip);
+  map.addListener('zoom_changed', mapEvents.tooltip.clearToolTip);
 }
 
 filterButton.addEventListener('click', (e) => {
