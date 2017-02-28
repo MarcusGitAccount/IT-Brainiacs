@@ -320,7 +320,13 @@ function markerMouseOut(e) {
 }
 
 function markerMouseDoubleClick(e) {
-  mapEvents.polygonArray[mapEvents.index].splice(mapEvents.polygonArray[mapEvents.index].indexOf(this), 1);
+  clearMarkers(mapEvents.polygonArray[mapEvents.index]);
+  clearMarkers(mapEvents.linesArray[mapEvents.index]);
+  
+  mapEvents.polygonArray[mapEvents.index] = [];
+  mapEvents.polygonPointsArray[mapEvents.index] = [];
+  mapEvents.linesArray[mapEvents.index] = [];
+  mapEvents.latLng[mapEvents.index] = [];
   google.maps.event.clearInstanceListeners(this);
   this.setMap(null);
 }
@@ -360,6 +366,7 @@ function polygonClick(e) {
     x: e.ya.x,
     y: e.ya.y
   }
+  const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
   if (e.ya.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
@@ -367,12 +374,14 @@ function polygonClick(e) {
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);
+  follower.querySelector('.progress').style.animation = '';
+  follower.classList.remove('visible');
   follower.style.transform = `translate(${position.x}px, ${position.y}px)`;
   follower.classList.add('visible');
-  follower.innerHTML =  this['data'] === undefined ? `<p>'waiting for data'</p>` : `<p>${this['data'].records} records</p>`;
+  follower.querySelector('.data').innerHTML =  this['data'] === undefined ? `<p>'waiting for data'</p>` : `<p>${this['data'].records} records</p>`;
   mapEvents.tooltip.timeout = setTimeout(() => {
     follower.classList.remove('visible');
-  }, mapEvents.tooltip.timeoutTime);
+  },wait);
 }
 
 function drawLine(path, map) {
@@ -470,6 +479,7 @@ function addMapEvents(map) {
   map.addListener('bounds_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('center_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('zoom_changed', mapEvents.tooltip.clearToolTip);
+  map.addListener('click', mapEvents.tooltip.clearToolTip);
 }
 
 filterButton.addEventListener('click', (e) => {

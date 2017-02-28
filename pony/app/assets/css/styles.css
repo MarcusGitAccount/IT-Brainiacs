@@ -68,7 +68,7 @@ body {
   background: #2b5876;
   background: -webkit-linear-gradient(to left, #2b5876 , #4e4376);
   background: linear-gradient(to left, #2b5876 , #4e4376);
-  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 #map {
@@ -146,20 +146,58 @@ table, .panel-body {
 
 #follower {
   position: absolute;
-  background-color: #37474f;
+  background-color: #255255;
   color: #fff;
   height: 45px;
   width: 200px;
   transform: translate(602px, 276px);
   transition: .2s all;
-  display: none;
   z-index: 1000;
+  display: none;
   font-size: 20px;
   border: 1px solid #fff;
 }
 
 #follower.visible {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-height: 45px;
+}
+
+.progress {
+  position: absolute;
+  margin-top: auto;
+  width: 100%;
+  height: 5px;
+  background-color: #ff0000;
+  z-index: 1001;
+  display: none;
+}
+
+#follower.visible > .progress {
+  animation: progress linear infinite
+}
+
+
+@keyframes progress {
+  0% {
+    width: 0;
+  }
+  20% {
+    width: 20%;
+  }
+  40% {
+    width: 40%
+  }
+  60% {
+    width: 60%
+  }
+  80% {
+    width: 80%
+  }
+  95% {
+    width: 100%
+  }
 }
