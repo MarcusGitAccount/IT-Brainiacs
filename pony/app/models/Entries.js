@@ -54,7 +54,11 @@ class Entries extends BaseModel {
   }
   
   tripsInPolygon(polygon, callback) {
-    const statement = mysql.format(`select lat, lon, trip_id from ?? where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))`, [this.tableName])
+    const statement = mysql.format(`select car_qnr, count(distinct trip_id) as "trip_count", count(trip_id) as "records", 
+    round(min(speed), 2) as "speed_min", round(max(speed), 2) as "speed_max", round(avg(coalesce(speed, 0)), 2) as "speed_avg", 
+    round(avg(coalesce(rate, 0)), 2) as "rate_avg" 
+    from entries where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')'))) 
+    group by car_qnr with rollup`, [this.tableName]);
     
     console.log(statement);
     this.query(statement, (err, result, fields) => {

@@ -363,8 +363,8 @@ function polygonRightClick(e) {
 
 function polygonClick(e) {
   const position = {
-    x: e.ya.x,
-    y: e.ya.y
+    x: e.ya.x + window.scrollX,
+    y: e.ya.y + window.scrollY
   }
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
@@ -378,7 +378,15 @@ function polygonClick(e) {
   follower.classList.remove('visible');
   follower.style.transform = `translate(${position.x}px, ${position.y}px)`;
   follower.classList.add('visible');
-  follower.querySelector('.data').innerHTML =  this['data'] === undefined ? `<p>'waiting for data'</p>` : `<p>${this['data'].records} records</p>`;
+  follower.querySelector('.data').innerHTML = this['data'] === undefined ? 
+    `<p>'waiting for data'</p>` : 
+    `<p>Records:       <span>${this['data'][this['data'].length - 1].records}</span></p>` + 
+    `<p>Cars number:   <span>${this['data'].length - 1}</span></p>` + 
+    `<p>Trips number:  <span>${this['data'][this['data'].length - 1].trip_count}</span></p>` + 
+    `<p>Highest speed: <span>${this['data'][this['data'].length - 1].speed_max}</span></p>` + 
+    `<p>Average speed: <span>${this['data'][this['data'].length - 1].speed_avg}</span></p>` + 
+    `<p>Average rate:  <span>${this['data'][this['data'].length - 1].rate_avg}</span></p>`;
+
   mapEvents.tooltip.timeout = setTimeout(() => {
     follower.classList.remove('visible');
   },wait);
@@ -424,12 +432,11 @@ function drawLine(path, map) {
       mapEvents.index++;
       
       mapEvents.getPointsInPolygon(coords, (error, data) => {
-      if (error) 
-        return ;
-      
-      polygon['data'] = {
-        records: data.length || 0
-      }
+        console.log(data);
+        if (error) 
+          return ;
+        
+        polygon['data'] = data;
     });
     }
   }
