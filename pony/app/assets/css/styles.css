@@ -100,7 +100,7 @@ body {
   float: right;
 }
 
-@media screen and (max-width: 760px) {
+@media screen and (max-width: 770px) {
   .form-group:last-of-type {
     float: none;
     margin-top: 1vh;

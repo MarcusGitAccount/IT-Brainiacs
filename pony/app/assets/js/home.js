@@ -139,6 +139,8 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  directionsService: null,
+  directionsDisplay: null,
   tooltip: {
     timeout: null,
     timeoutTime: 5000,
@@ -197,6 +199,10 @@ function initMap() {
 
   map.setOptions({ styles: mapStyles.retro});
   addMapEvents(map);
+  mapEvents.directionsService = new google.maps.DirectionsService();
+  mapEvents.directionsDisplay =  new google.maps.DirectionsRenderer();
+  mapEvents.directionsDisplay.setMap(map);
+  getRoute();
 }
 
 function addMarker(coords) {
@@ -487,6 +493,37 @@ function addMapEvents(map) {
   map.addListener('center_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('zoom_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('click', mapEvents.tooltip.clearToolTip);
+}
+
+function getRoute(start, end) {
+  start = {lat: 46.755157, lng: 23.590272};
+  end = {lat: 46.786268, lng: 23.605628};
+  
+  const request = {
+    origin: start,
+    destination: end,
+    travelMode: google.maps.TravelMode.DRIVING,
+    unitSystem: google.maps.UnitSystem.METRIC
+  };
+  
+  mapEvents.directionsService.route(request, (response, status) => {
+    if (status === google.maps.DirectionsStatus.OK) {
+      response.routes[0].overview_path.forEach(point => console.log("%s %s", point.lat(), point.lng()));
+      for (let index = 1; index < response.routes[0].overview_path.length; index++) {
+          const polyline = new google.maps.Polyline({
+            path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
+            strokeColor: mapEvents.colors[index % mapEvents.colors.length],
+            strokeOpacity: 1.0,
+            strokeWeight: 5.5,
+            map: map
+          });
+      }
+  //    mapEvents.directionsDisplay.setDirections(response);
+    }
+  });
+  
+  // MySQL: LineString
+  
 }
 
 filterButton.addEventListener('click', (e) => {
