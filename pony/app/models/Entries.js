@@ -70,6 +70,21 @@ class Entries extends BaseModel {
       callback(null, result, fields);
     });
   }
+  
+  routeData(polygon, days, callback) {
+    const statement = mysql.format(`select * from ?? where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))  
+    and date_format(from_unixtime(unix_timestamp(timestamp)), '%d-%m-%Y') = date_format(date_sub(now(), interval ${days} day), '%d-%m-%Y')`, [this.tableName]);
+    
+    console.log('route statement: %s', statement);
+    this.query(statement, (err, result, fields) => {
+      if (err) {
+        callback(err);
+        return ;
+      }
+      
+      callback(null, result, fields);
+    });
+  }
 }
 
 module.exports = Entries;

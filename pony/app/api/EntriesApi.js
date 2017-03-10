@@ -64,6 +64,17 @@ class EntriesApi {
       response.status(200).json(result);
     });
   }
+  
+  routeData(request, response) {
+    entries.routeData(request.body.polygon, request.body.days, (error, result, fields) => {
+      if (error) {
+        response.status(204).json(error);
+        return ;
+      }
+      
+      response.status(200).json(result);
+    });  
+  }
 }
 
 module.exports = EntriesApi;

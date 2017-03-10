@@ -144,7 +144,7 @@ let mapEvents = {
   tooltip: {
     timeout: null,
     timeoutTime: 5000,
-      clearToolTip: () => {
+    clearToolTip: () => {
       follower.classList.remove('visible');
     }
   },
@@ -155,7 +155,7 @@ let mapEvents = {
   polygonPointsArray: [[]],
   latLng: [[]],
   polygons: [],
-  getPointsInPolygon:(coords, callback) => {
+  getPointsInPolygon: (coords, callback) => {
     const polygon = coords;
     const XHR = new XMLHttpRequest();
     
@@ -508,22 +508,53 @@ function getRoute(start, end) {
   
   mapEvents.directionsService.route(request, (response, status) => {
     if (status === google.maps.DirectionsStatus.OK) {
-      response.routes[0].overview_path.forEach(point => console.log("%s %s", point.lat(), point.lng()));
-      for (let index = 1; index < response.routes[0].overview_path.length; index++) {
-          const polyline = new google.maps.Polyline({
-            path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
-            strokeColor: mapEvents.colors[index % mapEvents.colors.length],
-            strokeOpacity: 1.0,
-            strokeWeight: 5.5,
-            map: map
-          });
+      let MAX = { lat: -91, lng: -181 };
+      let MIN = { lat:  91, lng:  181 };
+      let coords = '';
+
+      response.routes[0].overview_path.forEach(point => {
+        const lat = point.lat();
+        const lng = point.lng();
+        
+        if (lat > MAX.lat)
+          MAX.lat = lat;
+        if (lat < MIN.lat)
+          MIN.lat = lat;
+        if (lng > MAX.lng)
+          MAX.lng = lng;
+        if (lng < MIN.lng)
+          MIN.lng = lng;
+      });
+      
+      coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
+      console.log(coords, MAX, MIN);
+      const polygon = new google.maps.Polygon({
+        paths: [{lat: MAX.lat, lng: MIN.lng}, MAX, {lat: MIN.lat, lng: MAX.lng}, MIN, {lat: MAX.lat, lng: MIN.lng}],
+        strokeColor: '#ff4400',
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        fillColor: '#e0e0e0',
+        fillOpacity: 0,
+        map: map
+      });
+      mapEvents.getPointsInPolygon(coords, (error, data) => {
+        if (error)
+          return ;
+        
+        console.log(data.length);
+      });
+
+       for (let index = 1; index < response.routes[0].overview_path.length; index++) {
+        const polyline = new google.maps.Polyline({
+          path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
+          strokeColor: mapEvents.colors[index % mapEvents.colors.length],
+          strokeOpacity: 1.0,
+          strokeWeight: 5.5,
+          map: map
+        });
       }
-  //    mapEvents.directionsDisplay.setDirections(response);
     }
   });
-  
-  // MySQL: LineString
-  
 }
 
 filterButton.addEventListener('click', (e) => {
