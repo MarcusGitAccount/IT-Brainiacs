@@ -139,8 +139,18 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  routeDistance: 0,
   directionsService: null,
   directionsDisplay: null,
+  distanceSI: {
+    km: Math.pow(10, 3),
+    hm: Math.pow(10, 2),
+    dam: Math.pow(10, 1),
+    m: 1,
+    dm: Math.pow(10, -1),
+    cm: Math.pow(10, -2),
+    mm: Math.pow(10, -3)
+  },
   tooltip: {
     timeout: null,
     timeoutTime: 5000,
@@ -172,7 +182,24 @@ let mapEvents = {
       callback(new Error('Error while retrieving data'));
     }
     XHR.send(JSON.stringify({polygon}));
+  },
+  getRouteData: (polygon, days, callback) => {
+    const XHR = new XMLHttpRequest();
+    
+    XHR.open('POST', '/api/entries/routedata', true);
+    XHR.setRequestHeader('Content-type', 'application/json');
+    XHR.onreadystatechange = () => {
+      if (XHR.readyState === 4 && XHR.status === 200) {
+        const response = JSON.parse(XHR.responseText);
+        
+        callback(null, response);
+      }
+      
+      callback(new Error('Error while posting data'));
+    }
+    XHR.send(JSON.stringify({polygon, days}));
   }
+  
 };
 
 function getJSON(url, callback) {
@@ -495,6 +522,29 @@ function addMapEvents(map) {
   map.addListener('click', mapEvents.tooltip.clearToolTip);
 }
 
+function transformDistance(textDistance) {
+  const split = textDistance.split(' ');
+  const value = parseFloat(split[0]) || 0;
+  const unit  = split[1] || 'm';
+  
+  return value * mapEvents.distanceSI[unit];
+}
+
+function B_in_AC(A, B, C) {
+  // lat - x; lng - y
+  
+  const X = [A.x, C.x].sort(); // rewrite these without sort
+  const Y = [A.y, C.y].sort();
+  const sum = (A.x * B.y + A.y * C.x + B.x * C.y) - (C.x * B.y + A.x * C.y + A.y * B.x);
+  
+  if (B.x < X[0] || B.x > X[1])
+    return false;
+  if (B.y < Y[0] || B.y > Y[1])
+    return false;
+  
+  return sum === 0 ? true : false;
+}
+
 function getRoute(start, end) {
   start = {lat: 46.755157, lng: 23.590272};
   end = {lat: 46.786268, lng: 23.605628};
@@ -508,11 +558,12 @@ function getRoute(start, end) {
   
   mapEvents.directionsService.route(request, (response, status) => {
     if (status === google.maps.DirectionsStatus.OK) {
-      let MAX = { lat: -91, lng: -181 };
-      let MIN = { lat:  91, lng:  181 };
+      let MAX = { lat: response.routes[0].bounds.f.f, lng: response.routes[0].bounds.b.f};
+      let MIN = { lat: response.routes[0].bounds.f.b, lng: response.routes[0].bounds.b.b};
       let coords = '';
 
-      response.routes[0].overview_path.forEach(point => {
+      console.log(response);
+      /* response.routes[0].overview_path.forEach(point => {
         const lat = point.lat();
         const lng = point.lng();
         
@@ -524,7 +575,7 @@ function getRoute(start, end) {
           MAX.lng = lng;
         if (lng < MIN.lng)
           MIN.lng = lng;
-      });
+      });*/
       
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
       console.log(coords, MAX, MIN);
@@ -537,14 +588,14 @@ function getRoute(start, end) {
         fillOpacity: 0,
         map: map
       });
-      mapEvents.getPointsInPolygon(coords, (error, data) => {
+      mapEvents.getRouteData(coords, 125, (error, data) => {
         if (error)
           return ;
         
         console.log(data.length);
       });
 
-       for (let index = 1; index < response.routes[0].overview_path.length; index++) {
+      for (let index = 1; index < response.routes[0].overview_path.length; index++) {
         const polyline = new google.maps.Polyline({
           path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
           strokeColor: mapEvents.colors[index % mapEvents.colors.length],
@@ -553,6 +604,10 @@ function getRoute(start, end) {
           map: map
         });
       }
+      
+      mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
+      
+      console.log('%s km', (mapEvents.routeDistance / 1000).toFixed(2));
     }
   });
 }
