@@ -139,6 +139,13 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  EPSILON: {
+    inf: -2 * Math.pow(10, 6),
+    sup:  2 * Math.pow(10, 6)
+  },
+  routeTripIds: {
+    
+  },
   routeDistance: 0,
   directionsService: null,
   directionsDisplay: null,
@@ -530,9 +537,7 @@ function transformDistance(textDistance) {
   return value * mapEvents.distanceSI[unit];
 }
 
-function B_in_AC(A, B, C) {
-  // lat - x; lng - y
-  
+function B_in_AC(A, B, C, inf_epsilon = 0, sup_epsilon = 0) {
   const X = [A.x, C.x].sort(); // rewrite these without sort
   const Y = [A.y, C.y].sort();
   const sum = (A.x * B.y + A.y * C.x + B.x * C.y) - (C.x * B.y + A.x * C.y + A.y * B.x);
@@ -542,7 +547,7 @@ function B_in_AC(A, B, C) {
   if (B.y < Y[0] || B.y > Y[1])
     return false;
   
-  return sum === 0 ? true : false;
+  return (sum >= inf_epsilon && sum <= sup_epsilon) ? true : false;
 }
 
 function getRoute(start, end) {
@@ -576,10 +581,8 @@ function getRoute(start, end) {
         if (lng < MIN.lng)
           MIN.lng = lng;
       });*/
-      
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
-      console.log(coords, MAX, MIN);
-      const polygon = new google.maps.Polygon({
+      /* const polygon = new google.maps.Polygon({
         paths: [{lat: MAX.lat, lng: MIN.lng}, MAX, {lat: MIN.lat, lng: MAX.lng}, MIN, {lat: MAX.lat, lng: MIN.lng}],
         strokeColor: '#ff4400',
         strokeOpacity: 0.8,
@@ -587,12 +590,30 @@ function getRoute(start, end) {
         fillColor: '#e0e0e0',
         fillOpacity: 0,
         map: map
-      });
+      }); */
+      
       mapEvents.getRouteData(coords, 125, (error, data) => {
         if (error)
           return ;
-        
-        console.log(data.length);
+
+        mapEvents.routeTripIds = {};
+        data.forEach(row => {
+          const B = {x: row.lat, y: row.lon};
+
+          for (let index = 1; index < response.routes[0].overview_path.length; index++) {
+            const A = {x: response.routes[0].overview_path[index - 1].lat(), y: response.routes[0].overview_path[index - 1].lng()};
+            const C = {x:     response.routes[0].overview_path[index].lat(), y:     response.routes[0].overview_path[index].lng()};
+
+            if (B_in_AC(A, B, C, mapEvents.EPSILON.inf, mapEvents.EPSILON.sup)) {
+              if (!(row.trip_id in mapEvents.routeTripIds))
+                mapEvents.routeTripIds[row.trip_id] = {total: 0, records: 0, start: row.timestamp, end: row.timestamp};
+                
+                mapEvents.routeTripIds[row.trip_id].total += row.speed;
+                mapEvents.routeTripIds[row.trip_id].end = row.timestamp;
+                mapEvents.routeTripIds[row.trip_id].records++;
+            }
+          }
+        });
       });
 
       for (let index = 1; index < response.routes[0].overview_path.length; index++) {
