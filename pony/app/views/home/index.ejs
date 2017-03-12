@@ -11,6 +11,7 @@
   <title><%= model.title %></title>
 </head>
 <body>
+
   <div id="follower">
     <div class="data"></div>
     <div class="progress"></div>
@@ -20,8 +21,27 @@
       <div id="map" class="col-md-12 col-sm-12"></div>
     </div>
     <div class="row">
+      <div class="col-md-12" >
+        <div class="panel panel-default no-border">
+          <div class="panel-heading grey panel-heading-flex">
+            <span class="ubuntu">Routes</span>
+            <a><i class="fa fa-minus-square" id="activate-route-panel" aria-hidden="true"></i></a>
+          </div>
+          <div class="panel-body ubuntu">
+            <div class="form-inline row routes">
+              <div class="form-group col-lg-4 col-xl-3 col-sm-6">
+                <input type="adress" class="form-control" placeholder="Enter adress">
+                <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>
+              </div>
+            </div
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row ubuntu">
       <div class="col-md-12">
-        <div class="form-inline">
+        <div class="form-inline list-filters">
           <div class="form-group">
             <input id="trip-id" type="text" class="form-control" id="" placeholder="Filter by trip id">
           </div>
@@ -35,10 +55,10 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-12" style="width: 100% !important;">
-        <div class="panel panel-default no-border no-border">
+      <div class="col-md-12 ubuntu" style="width: 100% !important;">
+        <div class="panel panel-default no-border rows-in-table">
           <div class="panel-heading grey">Rows in table list</div>
-          <div class="panel-body">
+          <div class="panel-body adjust-table">
             <div class="list-content table-content">
               <table class="table administrators">
               <tr>

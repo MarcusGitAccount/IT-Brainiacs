@@ -24,3 +24,5 @@ select mbrwithin(geomfromtext('LineString(0 0, 6 0)'), geomfromtext('POINT(2 3)'
 select date_format(from_unixtime(unix_timestamp(timestamp)), '%d-%m-%Y') as date, count(id), count(distinct car_qnr)  from entries group by 1 with rollup;
 
 select count(id) from entries where date_format(from_unixtime(unix_timestamp(timestamp)), '%d-%m-%Y') = date_format(date_sub(now(), interval 125 day), '%d-%m-%Y') limit 10;
+
+https://developers.google.com/maps/documentation/javascript/examples/geocoding-simple

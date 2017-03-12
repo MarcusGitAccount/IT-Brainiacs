@@ -126,6 +126,42 @@ const follower = document.querySelector('#follower');
 const mapLimits = document.querySelector('#map').getBoundingClientRect();
 const followerLimits = follower.getBoundingClientRect();
 
+class PanelLogic {
+  constructor() {
+    this.formHTML = `
+          <input type="adress" class="form-control" placeholder="Enter adress">
+          <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
+          <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
+    
+    this.parent = document.querySelector('.form-inline.row.routes');
+    this.textBoxes = this.parent.querySelectorAll('input[type=adress]');
+    this.addButtons = this.parent.querySelectorAll('.add-waypoint');
+    this.removeButtons = this.parent.querySelectorAll('.delete-waypoint');
+    this.route = [];
+    
+    this.addEvents();
+  }
+  
+  updateProperties() {
+    this.textBoxes = this.parent.querySelectorAll('input[type=adress]');
+    this.addButtons = this.parent.querySelectorAll('.add-waypoint');
+    this.removeButtons = this.parent.querySelectorAll('.delete-waypoint');
+  }
+  
+  addEvents() {
+    this.addButtons.forEach(btn => btn.addEventListener('click', addWaypointClick));
+    this.removeButtons.forEach(btn => btn.addEventListener('click', deleteWaypointClick));
+  }
+  
+  getRoute() {
+    this.route = [];
+    this.textBoxes.forEach(input => this.route.push(input.value));
+    return this.route;
+  }
+}
+
+let routePanelLogic = new PanelLogic();
+
 let pagination = {
   PAGE_SIZE: 25,
   currentPage: 1,
@@ -209,6 +245,24 @@ let mapEvents = {
   
 };
 
+function addWaypointClick(e) {
+  const nextElement = document.createElement('DIV');
+  
+  nextElement.className = 'form-group col-lg-4 col-xl-3 col-sm-6';
+  nextElement.innerHTML = routePanelLogic.formHTML;
+  
+  routePanelLogic.parent.insertBefore(nextElement, this.parentNode.nextSibling);
+  
+  routePanelLogic.updateProperties();
+  this.parentNode.nextSibling.querySelector('.add-waypoint').addEventListener('click', addWaypointClick);
+  this.parentNode.nextSibling.querySelector('.delete-waypoint').addEventListener('click', deleteWaypointClick);
+}
+
+function deleteWaypointClick(e) {
+  if (routePanelLogic.parent.childElementCount > 1)
+    routePanelLogic.parent.removeChild(this.parentNode);
+}
+
 function getJSON(url, callback) {
   const ajax = new XMLHttpRequest();
 
@@ -236,7 +290,6 @@ function initMap() {
   mapEvents.directionsService = new google.maps.DirectionsService();
   mapEvents.directionsDisplay =  new google.maps.DirectionsRenderer();
   mapEvents.directionsDisplay.setMap(map);
-  getRoute();
 }
 
 function addMarker(coords) {
@@ -550,12 +603,14 @@ function B_in_AC(A, B, C, inf_epsilon = 0, sup_epsilon = 0) {
   return (sum >= inf_epsilon && sum <= sup_epsilon) ? true : false;
 }
 
-function getRoute(start, end) {
-  start = {lat: 46.755157, lng: 23.590272};
-  end = {lat: 46.786268, lng: 23.605628};
-  
+function getRoute(start, end, days, waypoints) {
+ // start = {lat: 46.755157, lng: 23.590272};
+ // end = {lat: 46.786268, lng: 23.605628};
+ // days = 125
+ // {location, stopover} <- waypoint
   const request = {
     origin: start,
+    waypoints: waypoints,
     destination: end,
     travelMode: google.maps.TravelMode.DRIVING,
     unitSystem: google.maps.UnitSystem.METRIC
@@ -592,12 +647,12 @@ function getRoute(start, end) {
         map: map
       }); */
       
-      mapEvents.getRouteData(coords, 125, (error, data) => {
+      mapEvents.getRouteData(coords, days, (error, data) => {
         if (error)
           return ;
 
         mapEvents.routeTripIds = {};
-        data.forEach(row => {
+        data.forEach((row, i) => {
           const B = {x: row.lat, y: row.lon};
 
           for (let index = 1; index < response.routes[0].overview_path.length; index++) {
@@ -613,10 +668,15 @@ function getRoute(start, end) {
                 mapEvents.routeTripIds[row.trip_id].records++;
             }
           }
+          
+          if (i === data.length - 1) {
+            // do stuff in route panel
+            //console.log(mapEvents.routeTripIds);
+          }
         });
       });
 
-      for (let index = 1; index < response.routes[0].overview_path.length; index++) {
+      /* for (let index = 1; index < response.routes[0].overview_path.length; index++) {
         const polyline = new google.maps.Polyline({
           path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
           strokeColor: mapEvents.colors[index % mapEvents.colors.length],
@@ -624,11 +684,10 @@ function getRoute(start, end) {
           strokeWeight: 5.5,
           map: map
         });
-      }
-      
+      } */
       mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
-      
-      console.log('%s km', (mapEvents.routeDistance / 1000).toFixed(2));
+      mapEvents.directionsDisplay.setDirections(response);
+      //console.log('%s km', (mapEvents.routeDistance / 1000).toFixed(2));
     }
   });
 }

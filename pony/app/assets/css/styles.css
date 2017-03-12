@@ -60,7 +60,6 @@
 * {
   margin: 0;
   padding: 0;
-  font-family: 'Ubuntu', sans-serif !important;
   font-size: 16px;
 }
 
@@ -96,12 +95,12 @@ body {
   background-color: #49332b;
 }
 
-.form-group:last-of-type {
+.list-filters > .form-group:last-of-type {
   float: right;
 }
 
 @media screen and (max-width: 770px) {
-  .form-group:last-of-type {
+  .list-filters > .form-group:last-of-type {
     float: none;
     margin-top: 1vh;
   }
@@ -126,7 +125,7 @@ table tr {
   text-align: center;
 }
 
-table, .panel-body {
+.adjust-table {
   overflow-x: scroll;
 }
 
@@ -183,7 +182,7 @@ table, .panel-body {
 }
 
 #follower.visible > .progress {
-  animation: progress linear infinite
+  animation: progress linear infinite;
 }
 
 
@@ -206,4 +205,22 @@ table, .panel-body {
   95% {
     width: 100%
   }
+}
+
+.panel-heading-flex {
+  display: flex; 
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.ubuntu {
+  font-family: 'Ubuntu', sans-serif !important;
+}
+
+#activate-route-panel {
+  cursor: pointer;
+}
+
+.routes > .form-group {
+  margin-bottom: 7.5px;
 }
