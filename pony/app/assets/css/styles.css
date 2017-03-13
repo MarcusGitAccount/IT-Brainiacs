@@ -222,15 +222,16 @@ table tr {
 }
 
 .routes > .form-group {
-  margin-bottom: 7.5px;
+  margin: 7.5px 0;
 }
 
 
 .custom-number-input-textbox {
   text-align: center;
   width: 20px;
-  height: 40px;
+  height: 38px;
   background-color: white;
+  border: 1px solid black;
   border: none;
 }
 
@@ -255,6 +256,13 @@ table tr {
   text-align: center;
   line-height: 40px;
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-number-input > span > i {
+  margin-left: 5px;
 }
 
 .custom-number-input > span:last-of-type {
@@ -281,4 +289,12 @@ table tr {
 
 .form-inline-submit * {
   margin-right: 10px;
+}
+
+.route-data > p > span {
+  color: #fb8c00;
+}
+
+#received-data > p {
+  font-weight: bold;
 }

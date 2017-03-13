@@ -134,6 +134,8 @@ class PanelLogic {
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     
     this.parent = document.querySelector('.form-inline.row.routes');
+    this.submitButton = document.querySelector('#submit-route-btn');
+    this.dataDiv = document.querySelector('#received-data');
     this.updateProperties();
     this.route = [];
     
@@ -149,12 +151,18 @@ class PanelLogic {
   addEvents() {
     this.addButtons.forEach(btn => btn.addEventListener('click', addWaypointClick));
     this.removeButtons.forEach(btn => btn.addEventListener('click', deleteWaypointClick));
+    this.submitButton.addEventListener('click', submitRoute);
   }
   
   getRoute() {
+    this.updateProperties();
     this.route = [];
     this.textBoxes.forEach(input => this.route.push(input.value));
-    return this.route.map(item => item != null && item.length != 0 && item != undefined);
+    return this.route;
+  }
+  
+  getDays() {
+    return parseFloat(document.querySelector('#route-days-ago').value) || 0;
   }
 }
 
@@ -242,6 +250,22 @@ let mapEvents = {
   }
   
 };
+
+function submitRoute() {
+  let points = routePanelLogic.getRoute();
+  
+  if (points.length <= 1)
+    return ;
+  
+  const start = points.splice(0, 1)[0];
+  const end = points.splice(points.length - 1, 1)[0];
+  const waypoints = points.map(item => { return {location: item, stopover: false} }) || [];
+  const days = routePanelLogic.getDays();
+  
+  console.log(waypoints)
+  getRoute(start, end, days, waypoints);
+  
+}
 
 function addWaypointClick(e) {
   const nextElement = document.createElement('DIV');
@@ -606,6 +630,8 @@ function getRoute(start, end, days, waypoints) {
  // end = {lat: 46.786268, lng: 23.605628};
  // days = 125
  // {location, stopover} <- waypoint
+ 
+ console.log(start ,end, days, waypoints);
   const request = {
     origin: start,
     waypoints: waypoints,
@@ -649,6 +675,7 @@ function getRoute(start, end, days, waypoints) {
         if (error)
           return ;
 
+        mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
         mapEvents.routeTripIds = {};
         data.forEach((row, i) => {
           const B = {x: row.lat, y: row.lon};
@@ -668,8 +695,34 @@ function getRoute(start, end, days, waypoints) {
           }
           
           if (i === data.length - 1) {
-            // do stuff in route panel
-            //console.log(mapEvents.routeTripIds);
+            let speed = 0;
+            Object.keys(mapEvents.routeTripIds).forEach(current => speed += mapEvents.routeTripIds[current].total / mapEvents.routeTripIds[current].records);
+            
+            const cars = Object.keys(mapEvents.routeTripIds).length;
+            
+            speed = Math.round(speed /= cars);
+
+            const time = ((mapEvents.routeDistance / 1000).toFixed(2) / speed * 60).toFixed(2);
+            /*
+              <div class="col-lg-4 col-xl-3 col-sm-6">
+                <p>Starting adress: <span>${response.routes[0].legs[0].start_address}</span></p>
+                <p>Ending adress: <span>${response.routes[0].legs[0].end_address}</span></p>
+              </div>*/
+            routePanelLogic.dataDiv.innerHTML = `
+              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+                <p>Distance: <span>${(mapEvents.routeDistance / 1000).toFixed(2)}</span> km &nbsp <i class="fa fa-road" aria-hidden="true"></i></p>
+              </div>
+              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+                <p title="Number of cars from which data was colected">Cars: <span>${cars}</span>&nbsp<i class="fa fa-car" aria-hidden="true"></i></p>
+              </div>
+ 
+              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+                <p>Estimated time: <span>${time}</span> minutes&nbsp<i class="fa fa-clock-o" aria-hidden="true"></i></p>
+              </div>
+              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+                <p>Average speed: <span>${speed}</span> km/h</p>
+              </div>
+            `;
           }
         });
       });
@@ -683,7 +736,6 @@ function getRoute(start, end, days, waypoints) {
           map: map
         });
       } */
-      mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
       mapEvents.directionsDisplay.setDirections(response);
       //console.log('%s km', (mapEvents.routeDistance / 1000).toFixed(2));
     }

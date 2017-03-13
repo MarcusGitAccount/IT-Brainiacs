@@ -11,8 +11,6 @@ function bindCustomNumberInputEvents() {
                        parseInt(this.dataset.step) *
                        parseInt(this.dataset.increment);
       
-      console.log(parseInt(this.dataset.step));
-      
       if (newValue < parseInt(text.dataset.min) || newValue > parseInt(text.dataset.max))
         return ;
       
