@@ -29,6 +29,7 @@
             <a><i class="fa fa-minus-square" id="activate-route-panel" aria-hidden="true"></i></a>
           </div>
           <div class="panel-body ubuntu">
+            <div class="route-data"></div>
             <div class="form-inline row routes">
               <div class="form-group col-lg-4 col-xl-3 col-sm-6">
                 <input type="adress" class="form-control" placeholder="Enter adress">
@@ -36,11 +37,19 @@
                 <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>
               </div>
             </div
+            <div class="submit-route">
+              <div class="form-inline-submit">
+              <div class="custom-number-input">
+                <span data-step="1" data-increment="-1"><i class="fa fa-minus" aria-hidden="true"></i></span>
+                <input class="custom-number-input-textbox" type="text" value="0" data-max="100" data-min="0" readonly>
+                <span data-step="1" data-increment="1"><i class="fa fa-plus" aria-hidden="true"></i></span>
+              </div>
+             <input type="button" value="Submit route" class="btn btn-brown">
+             </div>
           </div>
         </div>
       </div>
     </div>
-      </div>
     <div class="row ubuntu">
       <div class="col-md-12">
         <div class="form-inline list-filters">
@@ -95,6 +104,7 @@
 
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6z7kDQmH4z1mt3U9UNJ4-apW6yOM-8g4&callback=initMap" defer></script>
   <script src="/assets/js/home.js"></script>
+  <script src="/assets/js/functions.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
 </body>

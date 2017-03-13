@@ -224,3 +224,61 @@ table tr {
 .routes > .form-group {
   margin-bottom: 7.5px;
 }
+
+
+.custom-number-input-textbox {
+  text-align: center;
+  width: 20px;
+  height: 40px;
+  background-color: white;
+  border: none;
+}
+
+.custom-number-input-textbox:hover,
+.custom-number-input-textbox:focus,
+.custom-number-input-textbox:active,
+.custom-number-input-textbox.active {
+  outline: 0;
+}
+
+.custom-number-input {
+  display: flex;
+  height: 40px;
+  flex-direction: row;
+  align-items: center;
+  
+}
+
+.custom-number-input > span {
+  width:  40px;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  color: white;
+}
+
+.custom-number-input > span:last-of-type {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  background-color: rgba(56, 142, 60, .8);
+}
+
+.custom-number-input > span:first-of-type {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background-color: rgba(240, 0, 0, .8);
+}
+
+.custom-number-input > span:hover {
+  cursor: pointer;
+}
+
+.form-inline-submit {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.form-inline-submit * {
+  margin-right: 10px;
+}

@@ -134,9 +134,7 @@ class PanelLogic {
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     
     this.parent = document.querySelector('.form-inline.row.routes');
-    this.textBoxes = this.parent.querySelectorAll('input[type=adress]');
-    this.addButtons = this.parent.querySelectorAll('.add-waypoint');
-    this.removeButtons = this.parent.querySelectorAll('.delete-waypoint');
+    this.updateProperties();
     this.route = [];
     
     this.addEvents();
@@ -156,7 +154,7 @@ class PanelLogic {
   getRoute() {
     this.route = [];
     this.textBoxes.forEach(input => this.route.push(input.value));
-    return this.route;
+    return this.route.map(item => item != null && item.length != 0 && item != undefined);
   }
 }
 
