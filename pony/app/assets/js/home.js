@@ -134,12 +134,24 @@ class PanelLogic {
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     
     this.parent = document.querySelector('.form-inline.row.routes');
+    this.displayButton = document.querySelector('#activate-route-panel');
+    this.displayed = 1;
     this.submitButton = document.querySelector('#submit-route-btn');
     this.dataDiv = document.querySelector('#received-data');
-    this.updateProperties();
     this.route = [];
-    
+    this.updateProperties();
     this.addEvents();
+    this.displayLogic = {
+      0: () => {
+        this.displayButton.innerHTML = '<i class="fa fa-plus-square" aria-hidden="true"></i>';
+        this.parent.parentNode.classList.add('hidden');
+      }
+      ,
+      1: () => {
+        this.displayButton.innerHTML = '<i class="fa fa-minus-square" aria-hidden="true"></i>';
+        this.parent.parentNode.classList.remove('hidden');
+      }
+    }
   }
   
   updateProperties() {
@@ -152,6 +164,7 @@ class PanelLogic {
     this.addButtons.forEach(btn => btn.addEventListener('click', addWaypointClick));
     this.removeButtons.forEach(btn => btn.addEventListener('click', deleteWaypointClick));
     this.submitButton.addEventListener('click', submitRoute);
+    this.displayButton.addEventListener('click', togglePanelBody);
   }
   
   getRoute() {
@@ -250,6 +263,13 @@ let mapEvents = {
   }
   
 };
+
+function togglePanelBody(e) {
+  let current = (routePanelLogic.displayed + 1) % 2;
+  
+  routePanelLogic.displayed = current;
+  routePanelLogic.displayLogic[current]();
+}
 
 function submitRoute() {
   let points = routePanelLogic.getRoute();

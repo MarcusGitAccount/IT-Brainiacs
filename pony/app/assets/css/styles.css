@@ -268,13 +268,13 @@ table tr {
 .custom-number-input > span:last-of-type {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
-  background-color: rgba(56, 142, 60, .8);
+  background-color: rgba(251, 140, 0, 0.8);
 }
 
 .custom-number-input > span:first-of-type {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
-  background-color: rgba(240, 0, 0, .8);
+  background-color: rgba(105, 74, 62, 1);
 }
 
 .custom-number-input > span:hover {
@@ -295,6 +295,6 @@ table tr {
   color: #fb8c00;
 }
 
-#received-data > p {
-  font-weight: bold;
+.hidden {
+  display: none;
 }
