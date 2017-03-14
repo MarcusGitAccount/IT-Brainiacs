@@ -337,3 +337,7 @@ table tr {
 .loading-animation-container > .dot:nth-child(3) {
   animation-delay: .51s;
 }
+
+#received-data {
+  margin: 1.5vh 0;
+}
