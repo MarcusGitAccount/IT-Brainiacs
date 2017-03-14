@@ -1,4 +1,8 @@
 
+:root {
+  --base-size: 1.5px;
+}
+
 .btn-brown {
   background-color: #694a3e;
   border-color: #694a3e;
@@ -319,6 +323,7 @@ table tr {
   }
 }
 
+
 .loading-animation-container > .dot {
   width: 10px;
   height: 10px;
@@ -345,16 +350,16 @@ table tr {
 
 .loading-animation-container > .square {
   position: relative;
-  height: 20px;
-  width: 20px;
+  height: calc(var(--base-size) * 20);
+  width: calc(var(--base-size) * 20);
   margin: 0;
 }
 
 .loading-animation-container > .square:not(:first-of-type):before {
   content: "";
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: calc(var(--base-size) * 10);
+  height: calc(var(--base-size) * 10);
   bottom: 0;
   left: 0;
   background-color: #ad1457;
@@ -364,16 +369,16 @@ table tr {
 .loading-animation-container > .square:not(:last-of-type):after {
   content: "";
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: calc(var(--base-size) * 10);
+  height: calc(var(--base-size) * 10);
   bottom: 0;
-  left: 10px;
+  left: calc(var(--base-size) * 10);
   border-radius: 50%;
   background-color: #009688;
 }
 
 .loading-animation-container > .square:first-of-type {
-  height: 40px;
+  height: calc(var(--base-size) * 40);
   animation: pendul-left;
   animation-duration: 1.5s;
   animation-iteration-count: infinite;
@@ -381,7 +386,7 @@ table tr {
 }
 
 .loading-animation-container > .square:last-of-type {
-  height: 40px;
+  height: calc(var(--base-size) * 40);
   animation: pendul-right;
   animation-duration: 1.5s;
   animation-iteration-count: infinite;
