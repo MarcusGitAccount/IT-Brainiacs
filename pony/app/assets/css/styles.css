@@ -302,8 +302,9 @@ table tr {
 .loading-animation-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 10vh;
+  align-items: flex-end;
+  min-height: 7.5vh;
+  margin-bottom: 2.5vh;
 }
 
 @keyframes bounce {
@@ -340,4 +341,74 @@ table tr {
 
 #received-data {
   margin: 1.5vh 0;
+}
+
+.loading-animation-container > .square {
+  position: relative;
+  height: 20px;
+  width: 20px;
+  margin: 0;
+}
+
+.loading-animation-container > .square:not(:first-of-type):before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  bottom: 0;
+  left: 0;
+  background-color: #ad1457;
+  border-radius: 50%;
+}
+
+.loading-animation-container > .square:not(:last-of-type):after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  bottom: 0;
+  left: 10px;
+  border-radius: 50%;
+  background-color: #009688;
+}
+
+.loading-animation-container > .square:first-of-type {
+  height: 40px;
+  animation: pendul-left;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.loading-animation-container > .square:last-of-type {
+  height: 40px;
+  animation: pendul-right;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-delay: .75s;
+}
+  
+@keyframes pendul-left {
+  25% {
+    transform: rotate(120deg);
+  }
+  50% {
+    transform: rotate(0);
+  }
+  75% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes pendul-right {
+  25% {
+    transform: rotate(-120deg);
+  }
+  50% {
+    transform: rotate(0);
+  }
+  75% {
+    transform: rotate(0);
+  }
 }

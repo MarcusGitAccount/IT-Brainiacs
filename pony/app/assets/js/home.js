@@ -128,6 +128,13 @@ const followerLimits = follower.getBoundingClientRect();
 
 class PanelLogic {
   constructor() {
+    this.squareAnimationHTML = `
+      <div class="loading-animation-container">
+        <div class="square"></div>
+        <div class="square"></div>
+        <div class="square"></div>
+        <div class="square"></div>
+      </div>`;
     this.errorHTML = `
       <div class="loading-animation-container">
         <p class="ubuntu">Error while dislaying data. Or maybe no data registered.</p>
@@ -293,7 +300,7 @@ function submitRoute() {
   const days = routePanelLogic.getDays();
   
   console.log(waypoints)
-  routePanelLogic.dataDiv.innerHTML = routePanelLogic.waitingAnimtionHTML;
+  routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
   getRoute(start, end, days, waypoints);
   
 }
