@@ -2,6 +2,7 @@
 function bindCustomNumberInputEvents() {
   const inputs = document.querySelectorAll('.custom-number-input');
   
+  
   inputs.forEach(input => {
     const text = input.querySelector('input[type=text]');
     const spans = input.querySelectorAll('span');
@@ -15,9 +16,10 @@ function bindCustomNumberInputEvents() {
         return ;
       
       text.value = newValue; 
-      text.style.width = `${(text.value.length > 1 ? text.value.length : 0) * 10 + 20}px`
+      text.style.width = `${(text.value.length > 1 ? text.value.length : 0) * 10 + 10}px`;
     }
 
+    text.style.width = `${(text.value.length > 1 ? text.value.length : 0) * 10 + 10}px`
     spans.forEach(span => span.addEventListener('click', spanClick));
   });
 }

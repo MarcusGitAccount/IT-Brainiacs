@@ -128,11 +128,21 @@ const followerLimits = follower.getBoundingClientRect();
 
 class PanelLogic {
   constructor() {
+    this.errorHTML = `
+      <div class="loading-animation-container">
+        <p class="ubuntu">Error while dislaying data. Or maybe no data registered.</p>
+      </div>
+    `;
+    this.waitingAnimtionHTML = `
+      <div class="loading-animation-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>`;
     this.formHTML = `
           <input type="adress" class="form-control" placeholder="Enter adress">
           <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
-    
     this.parent = document.querySelector('.form-inline.row.routes');
     this.displayButton = document.querySelector('#activate-route-panel');
     this.displayed = 1;
@@ -283,6 +293,7 @@ function submitRoute() {
   const days = routePanelLogic.getDays();
   
   console.log(waypoints)
+  routePanelLogic.dataDiv.innerHTML = routePanelLogic.waitingAnimtionHTML;
   getRoute(start, end, days, waypoints);
   
 }
@@ -651,7 +662,6 @@ function getRoute(start, end, days, waypoints) {
  // days = 125
  // {location, stopover} <- waypoint
  
- console.log(start ,end, days, waypoints);
   const request = {
     origin: start,
     waypoints: waypoints,
@@ -662,41 +672,21 @@ function getRoute(start, end, days, waypoints) {
   
   mapEvents.directionsService.route(request, (response, status) => {
     if (status === google.maps.DirectionsStatus.OK) {
-      let MAX = { lat: response.routes[0].bounds.f.f, lng: response.routes[0].bounds.b.f};
-      let MIN = { lat: response.routes[0].bounds.f.b, lng: response.routes[0].bounds.b.b};
+      const MAX = { lat: response.routes[0].bounds.f.f, lng: response.routes[0].bounds.b.f};
+      const MIN = { lat: response.routes[0].bounds.f.b, lng: response.routes[0].bounds.b.b};
       let coords = '';
 
-      console.log(response);
-      /* response.routes[0].overview_path.forEach(point => {
-        const lat = point.lat();
-        const lng = point.lng();
-        
-        if (lat > MAX.lat)
-          MAX.lat = lat;
-        if (lat < MIN.lat)
-          MIN.lat = lat;
-        if (lng > MAX.lng)
-          MAX.lng = lng;
-        if (lng < MIN.lng)
-          MIN.lng = lng;
-      });*/
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
-      /* const polygon = new google.maps.Polygon({
-        paths: [{lat: MAX.lat, lng: MIN.lng}, MAX, {lat: MIN.lat, lng: MAX.lng}, MIN, {lat: MAX.lat, lng: MIN.lng}],
-        strokeColor: '#ff4400',
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: '#e0e0e0',
-        fillOpacity: 0,
-        map: map
-      }); */
-      
       mapEvents.getRouteData(coords, days, (error, data) => {
         if (error)
           return ;
 
         mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
         mapEvents.routeTripIds = {};
+        if (data.length === 0 || !data) {
+          routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
+          return ;
+        }
         data.forEach((row, i) => {
           const B = {x: row.lat, y: row.lon};
 
@@ -717,7 +707,6 @@ function getRoute(start, end, days, waypoints) {
           if (i === data.length - 1) {
             let speed = 0;
             Object.keys(mapEvents.routeTripIds).forEach(current => speed += mapEvents.routeTripIds[current].total / mapEvents.routeTripIds[current].records);
-            
             const cars = Object.keys(mapEvents.routeTripIds).length;
             
             speed = Math.round(speed /= cars);
@@ -740,25 +729,17 @@ function getRoute(start, end, days, waypoints) {
                 <p>Estimated time: <span>${time}</span> minutes&nbsp<i class="fa fa-clock-o" aria-hidden="true"></i></p>
               </div>
               <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
-                <p>Average speed: <span>${speed}</span> km/h</p>
+                <p>Average speed: <span>${speed}</span> km/h  <i class="fa fa-bar-chart" aria-hidden="true"></i></p>
               </div>
             `;
           }
         });
       });
 
-      /* for (let index = 1; index < response.routes[0].overview_path.length; index++) {
-        const polyline = new google.maps.Polyline({
-          path: [response.routes[0].overview_path[index - 1], response.routes[0].overview_path[index]],
-          strokeColor: mapEvents.colors[index % mapEvents.colors.length],
-          strokeOpacity: 1.0,
-          strokeWeight: 5.5,
-          map: map
-        });
-      } */
       mapEvents.directionsDisplay.setDirections(response);
-      //console.log('%s km', (mapEvents.routeDistance / 1000).toFixed(2));
     }
+    else
+      routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
   });
 }
 

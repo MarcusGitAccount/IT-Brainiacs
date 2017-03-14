@@ -298,3 +298,42 @@ table tr {
 .hidden {
   display: none;
 }
+
+.loading-animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 10vh;
+}
+
+@keyframes bounce {
+  25% {
+    transform: translateY(-25px);
+  }
+  75% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.loading-animation-container > .dot {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(251, 140, 0, 1); 
+  margin: 0 10px 0 0;
+  border-radius: 50%;
+  animation-name: bounce;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.loading-animation-container > .dot:nth-child(2) {
+  animation-delay: .25s;
+}
+
+.loading-animation-container > .dot:nth-child(3) {
+  animation-delay: .51s;
+}
