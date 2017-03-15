@@ -516,14 +516,14 @@ function polygonRightClick(e) {
 
 function polygonClick(e) {
   const position = {
-    x: e.ya.x + window.scrollX,
-    y: e.ya.y + window.scrollY
+    x: e.za.x + window.scrollX,
+    y: e.za.y + window.scrollY
   }
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.ya.x + followerLimits.width > mapLimits.right)
+  if (e.za.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
-  if (e.ya.y + followerLimits.height > mapLimits.bottom)
+  if (e.za.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);

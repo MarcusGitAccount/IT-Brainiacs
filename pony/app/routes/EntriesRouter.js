@@ -17,6 +17,7 @@ module.exports = (function route() {
   router.get('/size', entries.size);
   router.post('/inpolygon', entries.tripsInPolygon);
   router.post('/routedata', entries.routeData); 
+  router.post('/betweendates', entries.routeBetweenDates);
   
   return router;
 });

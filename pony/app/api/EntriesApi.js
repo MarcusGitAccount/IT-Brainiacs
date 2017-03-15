@@ -75,6 +75,18 @@ class EntriesApi {
       response.status(200).json(result);
     });  
   }
+  
+  routeBetweenDates(request, response) {
+    console.log("here I am");
+    entries.routeBetweenDates(request.body.polygon, request.body.start, request.body.end, (error, result, fields) => {
+      if (error) {
+        response.status(204).json(error);
+        return ;
+      }
+      
+      response.status(200).json(result);
+    });
+  }
 }
 
 module.exports = EntriesApi;

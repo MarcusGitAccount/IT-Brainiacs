@@ -85,6 +85,22 @@ class Entries extends BaseModel {
       callback(null, result, fields);
     });
   }
+  
+  routeBetweenDates(polygon, start, end, callback) {
+    const statement = mysql.format(`select * from ?? where (date_format(from_unixtime(unix_timestamp(timestamp)), '%m-%d-%Y')
+      between date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y') and date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y')) and 
+      contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))`, [this.tableName, start, end]);
+  
+    console.log(statement);
+    this.query(statement, (err, result, fields) => {
+      if (err) {
+        callback(err);
+        return ;
+      }
+      
+      callback(null, result, fields);
+    });
+  }
 }
 
 module.exports = Entries;
