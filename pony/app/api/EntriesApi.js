@@ -2,6 +2,8 @@
 
 const url = require('url');
 const Entries = require('../models/Entries');
+const Route = require('../../system/helpers/Route');
+
 const entries = new Entries();
 
 class EntriesApi {
@@ -66,13 +68,15 @@ class EntriesApi {
   }
   
   routeData(request, response) {
-    entries.routeData(request.body.polygon, request.body.days, (error, result, fields) => {
+    entries.routeData(request.body.route, request.body.polygon, request.body.days, (error, result, fields) => {
+      const route = new Route(request.body.route.routePoints, request.body.route.steps);
+
       if (error) {
         response.status(204).json(error);
         return ;
       }
-      
-      response.status(200).json(result);
+
+      response.status(200).json(route.getResults(result));
     });  
   }
   

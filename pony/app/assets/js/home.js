@@ -262,7 +262,7 @@ let mapEvents = {
     }
     XHR.send(JSON.stringify({polygon}));
   },
-  getRouteData: (polygon, days, callback) => {
+  getRouteData: (route, polygon, days, callback) => {
     const XHR = new XMLHttpRequest();
     
     XHR.open('POST', '/api/entries/routedata', true);
@@ -272,11 +272,12 @@ let mapEvents = {
         const response = JSON.parse(XHR.responseText);
         
         callback(null, response);
+        return ;
       }
       
       callback(new Error('Error while posting data'));
     }
-    XHR.send(JSON.stringify({polygon, days}));
+    XHR.send(JSON.stringify({route, polygon, days}));
   }
   
 };
@@ -299,10 +300,8 @@ function submitRoute() {
   const waypoints = points.map(item => { return {location: item, stopover: false} }) || [];
   const days = routePanelLogic.getDays();
   
-  console.log(waypoints)
   routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
   getRoute(start, end, days, waypoints);
-  
 }
 
 function addWaypointClick(e) {
@@ -642,33 +641,28 @@ function addMapEvents(map) {
   map.addListener('click', mapEvents.tooltip.clearToolTip);
 }
 
-function transformDistance(textDistance) {
-  const split = textDistance.split(' ');
-  const value = parseFloat(split[0]) || 0;
-  const unit  = split[1] || 'm';
+function printRouteData(error, result) {
+  if (error || result.error) {
+    routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
+    return ;
+  };
   
-  return value * mapEvents.distanceSI[unit];
-}
+  routePanelLogic.dataDiv.innerHTML = `
+    <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+      <p>Distance: <span>${result.distance}</span> km &nbsp <i class="fa fa-road" aria-hidden="true"></i></p>
+    </div>
+    <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+      <p title="Number of cars from which data was colected">Cars: <span>${result.cars}</span>&nbsp<i class="fa fa-car" aria-hidden="true"></i></p>
+    </div>
 
-function B_in_AC(A, B, C, inf_epsilon = 0, sup_epsilon = 0) {
-  const X = [A.x, C.x].sort(); // rewrite these without sort
-  const Y = [A.y, C.y].sort();
-  const sum = (A.x * B.y + A.y * C.x + B.x * C.y) - (C.x * B.y + A.x * C.y + A.y * B.x);
-  
-  if (B.x < X[0] || B.x > X[1])
-    return false;
-  if (B.y < Y[0] || B.y > Y[1])
-    return false;
-  
-  return (sum >= inf_epsilon && sum <= sup_epsilon) ? true : false;
-}
+    <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+      <p>Estimated time: <span>${result.time}</span> minutes&nbsp<i class="fa fa-clock-o" aria-hidden="true"></i></p>
+    </div>
+    <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
+      <p>Average speed: <span>${result.speed}</span> km/h  <i class="fa fa-bar-chart" aria-hidden="true"></i></p>`;
+}      
 
 function getRoute(start, end, days, waypoints) {
- // start = {lat: 46.755157, lng: 23.590272};
- // end = {lat: 46.786268, lng: 23.605628};
- // days = 125
- // {location, stopover} <- waypoint
- 
   const request = {
     origin: start,
     waypoints: waypoints,
@@ -684,65 +678,7 @@ function getRoute(start, end, days, waypoints) {
       let coords = '';
 
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
-      mapEvents.getRouteData(coords, days, (error, data) => {
-        if (error)
-          return ;
-
-        mapEvents.routeDistance = response.routes[0].legs[0].steps.reduce((sum, current) => sum += transformDistance(current.distance.text), 0);
-        mapEvents.routeTripIds = {};
-        if (data.length === 0 || !data) {
-          routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
-          return ;
-        }
-        data.forEach((row, i) => {
-          const B = {x: row.lat, y: row.lon};
-
-          for (let index = 1; index < response.routes[0].overview_path.length; index++) {
-            const A = {x: response.routes[0].overview_path[index - 1].lat(), y: response.routes[0].overview_path[index - 1].lng()};
-            const C = {x:     response.routes[0].overview_path[index].lat(), y:     response.routes[0].overview_path[index].lng()};
-
-            if (B_in_AC(A, B, C, mapEvents.EPSILON.inf, mapEvents.EPSILON.sup)) {
-              if (!(row.trip_id in mapEvents.routeTripIds))
-                mapEvents.routeTripIds[row.trip_id] = {total: 0, records: 0, start: row.timestamp, end: row.timestamp};
-                
-                mapEvents.routeTripIds[row.trip_id].total += row.speed;
-                mapEvents.routeTripIds[row.trip_id].end = row.timestamp;
-                mapEvents.routeTripIds[row.trip_id].records++;
-            }
-          }
-          
-          if (i === data.length - 1) {
-            let speed = 0;
-            Object.keys(mapEvents.routeTripIds).forEach(current => speed += mapEvents.routeTripIds[current].total / mapEvents.routeTripIds[current].records);
-            const cars = Object.keys(mapEvents.routeTripIds).length;
-            
-            speed = Math.round(speed /= cars);
-
-            const time = ((mapEvents.routeDistance / 1000).toFixed(2) / speed * 60).toFixed(2);
-            /*
-              <div class="col-lg-4 col-xl-3 col-sm-6">
-                <p>Starting adress: <span>${response.routes[0].legs[0].start_address}</span></p>
-                <p>Ending adress: <span>${response.routes[0].legs[0].end_address}</span></p>
-              </div>*/
-            routePanelLogic.dataDiv.innerHTML = `
-              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
-                <p>Distance: <span>${(mapEvents.routeDistance / 1000).toFixed(2)}</span> km &nbsp <i class="fa fa-road" aria-hidden="true"></i></p>
-              </div>
-              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
-                <p title="Number of cars from which data was colected">Cars: <span>${cars}</span>&nbsp<i class="fa fa-car" aria-hidden="true"></i></p>
-              </div>
- 
-              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
-                <p>Estimated time: <span>${time}</span> minutes&nbsp<i class="fa fa-clock-o" aria-hidden="true"></i></p>
-              </div>
-              <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
-                <p>Average speed: <span>${speed}</span> km/h  <i class="fa fa-bar-chart" aria-hidden="true"></i></p>
-              </div>
-            `;
-          }
-        });
-      });
-
+      mapEvents.getRouteData({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
       mapEvents.directionsDisplay.setDirections(response);
     }
     else

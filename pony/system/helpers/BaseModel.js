@@ -4,7 +4,7 @@ const mysql = require('mysql');
 
 const config = require('../../config');
 const db = require('../database/db')(config.db.connection);
-const DeepClone = require('../helpers/DeepClone');
+const DeepClone = require('./DeepClone');
 const constants = require('../utils/constants');
 
 const deepClone = new DeepClone();

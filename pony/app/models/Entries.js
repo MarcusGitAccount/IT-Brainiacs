@@ -71,7 +71,7 @@ class Entries extends BaseModel {
     });
   }
   
-  routeData(polygon, days, callback) {
+  routeData(route, polygon, days, callback) {
     const statement = mysql.format(`select * from ?? where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))  
     and date_format(from_unixtime(unix_timestamp(timestamp)), '%d-%m-%Y') = date_format(date_sub(now(), interval ${days} day), '%d-%m-%Y')`, [this.tableName]);
     
