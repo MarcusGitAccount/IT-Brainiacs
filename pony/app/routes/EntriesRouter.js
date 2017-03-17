@@ -8,8 +8,8 @@ const EntriesApi = require('../api/EntriesApi');
 const entries = new EntriesApi();
 
 module.exports = (function route() {
-  router.use(parser.urlencoded({ 'extended': true}));
-  router.use(parser.json());
+  router.use(parser.urlencoded({ 'extended': true, limit: '15mb'}));
+  router.use(parser.json({limit: '15mb'}));
   
   router.get('/page', entries.page);
   router.get('/trip/:id', entries.trip);

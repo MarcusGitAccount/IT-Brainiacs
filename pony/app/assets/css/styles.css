@@ -289,6 +289,7 @@ table tr {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  margin-bottom: 2vh;
 }
 
 .form-inline-submit * {
@@ -416,4 +417,8 @@ table tr {
   75% {
     transform: rotate(0);
   }
+}
+
+.form-inline-submit > label {
+  padding-top: 7.5px;
 }

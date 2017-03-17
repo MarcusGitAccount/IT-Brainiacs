@@ -1,12 +1,16 @@
 'use strict';
 
 const constants = require('../utils/constants');
+const DeepClone = require('./DeepClone');
+
+const deepClone = new DeepClone();
 
 class Route {
-  constructor(route, steps) {
+  constructor(route, steps, dates) {
     this.route = route;
     this.steps = steps;
     this.routeTripIds = {};
+    this.dates = deepClone.newObject(dates);
     this.result = {
       dates: {
         start: null,
@@ -38,6 +42,7 @@ class Route {
     if (B.y < Y[0] || B.y > Y[1])
       return false;
     
+    console.log(sum);
     return (sum >= constants.EPSILON.inf && sum <= constants.EPSILON.sup) ? true : false;
   }
   
@@ -71,8 +76,11 @@ class Route {
     });
   }
   
-  getResults(data) {
+  getResultsFromNormalRoute(data) {
     this.processData(data);
+    if (this.result.error)
+      return this.result;
+    
     this.result.distance = this.getDistance();
     Object.keys(this.routeTripIds).forEach(current => this.result.speed += this.routeTripIds[current].total / this.routeTripIds[current].records);
     this.result.cars = Object.keys(this.routeTripIds).length;

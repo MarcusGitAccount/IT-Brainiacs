@@ -76,19 +76,21 @@ class EntriesApi {
         return ;
       }
 
-      response.status(200).json(route.getResults(result));
+      response.status(200).json(route.getResultsFromNormalRoute(result));
     });  
   }
   
   routeBetweenDates(request, response) {
     console.log("here I am");
-    entries.routeBetweenDates(request.body.polygon, request.body.start, request.body.end, (error, result, fields) => {
+    entries.routeBetweenDates(request.body.polygon, request.body.dates.start, request.body.dates.end, (error, result, fields) => {
+      const route = new Route(request.body.route.routePoints, request.body.route.steps);
+      
       if (error) {
         response.status(204).json(error);
         return ;
       }
       
-      response.status(200).json(result);
+      response.status(200).json(route.getResultsFromNormalRoute(result));
     });
   }
 }

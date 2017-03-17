@@ -1,4 +1,3 @@
-
 const mapStyles = {
   default: null,
   retro: [
@@ -151,13 +150,14 @@ class PanelLogic {
           <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     this.parent = document.querySelector('.form-inline.row.routes');
+    this.getDataBetweenDates = document.querySelector('#get-route-between-dates-btn');
+    this.dateInputs = document.querySelectorAll('input[type=date]');
     this.displayButton = document.querySelector('#activate-route-panel');
     this.displayed = 1;
     this.submitButton = document.querySelector('#submit-route-btn');
     this.dataDiv = document.querySelector('#received-data');
     this.route = [];
     this.updateProperties();
-    this.addEvents();
     this.displayLogic = {
       0: () => {
         this.displayButton.innerHTML = '<i class="fa fa-plus-square" aria-hidden="true"></i>';
@@ -169,6 +169,8 @@ class PanelLogic {
         this.parent.parentNode.classList.remove('hidden');
       }
     }
+    this.initialDatesInputsValues();
+    this.addEvents();
   }
   
   updateProperties() {
@@ -181,6 +183,7 @@ class PanelLogic {
     this.addButtons.forEach(btn => btn.addEventListener('click', addWaypointClick));
     this.removeButtons.forEach(btn => btn.addEventListener('click', deleteWaypointClick));
     this.submitButton.addEventListener('click', submitRoute);
+    this.getDataBetweenDates.addEventListener('click', getDataBetweenDatesClick);
     this.displayButton.addEventListener('click', togglePanelBody);
   }
   
@@ -193,6 +196,18 @@ class PanelLogic {
   
   getDays() {
     return parseFloat(document.querySelector('#route-days-ago').value) || 0;
+  }
+  
+  getTodayDateFormat() {
+    const date = new Date();
+    
+    return [date.getFullYear(), (date.getMonth() + 1 < 10) ? `0${date.getMonth()  + 1}` : date.getMonth() + 1, date.getUTCDate()].join('-');
+  }
+  
+  initialDatesInputsValues() {
+    const date = this.getTodayDateFormat();
+    
+    this.dateInputs.forEach(input => input.value = date);
   }
 }
 
@@ -211,25 +226,9 @@ let markers = [];
 let map;
 
 let mapEvents = {
-  EPSILON: {
-    inf: -2 * Math.pow(10, 6),
-    sup:  2 * Math.pow(10, 6)
-  },
-  routeTripIds: {
-    
-  },
   routeDistance: 0,
   directionsService: null,
   directionsDisplay: null,
-  distanceSI: {
-    km: Math.pow(10, 3),
-    hm: Math.pow(10, 2),
-    dam: Math.pow(10, 1),
-    m: 1,
-    dm: Math.pow(10, -1),
-    cm: Math.pow(10, -2),
-    mm: Math.pow(10, -3)
-  },
   tooltip: {
     timeout: null,
     timeoutTime: 5000,
@@ -278,6 +277,23 @@ let mapEvents = {
       callback(new Error('Error while posting data'));
     }
     XHR.send(JSON.stringify({route, polygon, days}));
+  },
+  getRouteDataBetweenDates: (route, polygon, dates, callback) => {
+    const XHR = new XMLHttpRequest();
+    
+    XHR.open('POST', '/api/entries/betweendates', true);
+    XHR.setRequestHeader('Content-type', 'application/json');
+    XHR.onreadystatechange = () => {
+      if (XHR.readyState === 4 && XHR.status === 200) {
+        const response = JSON.parse(XHR.responseText);
+        
+        callback(null, response);
+        return ;
+      }
+      
+      callback(new Error('Error while posting data'));
+    }
+    XHR.send(JSON.stringify({route, polygon, dates}));
   }
   
 };
@@ -289,19 +305,43 @@ function togglePanelBody(e) {
   routePanelLogic.displayLogic[current]();
 }
 
-function submitRoute() {
+function prepareRouteSubmission() {
   let points = routePanelLogic.getRoute();
   
   if (points.length <= 1)
-    return ;
+    return {error: true};
   
   const start = points.splice(0, 1)[0];
   const end = points.splice(points.length - 1, 1)[0];
   const waypoints = points.map(item => { return {location: item, stopover: false} }) || [];
   const days = routePanelLogic.getDays();
+  const dates = {
+    start: `${routePanelLogic.dateInputs[0].value} 00:00:00`,
+    end: `${routePanelLogic.dateInputs[1].value} 23:59:59`
+  };
   
+  return {start, end, waypoints, days, dates}
+}
+
+function getDataBetweenDatesClick(e) {
+  const params = prepareRouteSubmission();
+  
+  console.log(params);
+  if (params.error)
+    return;
+
   routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
-  getRoute(start, end, days, waypoints);
+  getRoute(params.start, params.end, params.dates, params.waypoints, true);
+}
+
+function submitRoute(e) {
+  const params = prepareRouteSubmission();
+  
+  if (params.error)
+    return;
+
+  routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
+  getRoute(params.start, params.end, params.days, params.waypoints);
 }
 
 function addWaypointClick(e) {
@@ -662,7 +702,7 @@ function printRouteData(error, result) {
       <p>Average speed: <span>${result.speed}</span> km/h  <i class="fa fa-bar-chart" aria-hidden="true"></i></p>`;
 }      
 
-function getRoute(start, end, days, waypoints) {
+function getRoute(start, end, days, waypoints, betweendates = false) {
   const request = {
     origin: start,
     waypoints: waypoints,
@@ -678,8 +718,12 @@ function getRoute(start, end, days, waypoints) {
       let coords = '';
 
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
-      mapEvents.getRouteData({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
       mapEvents.directionsDisplay.setDirections(response);
+      if (betweendates) {
+        mapEvents.getRouteDataBetweenDates({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
+      }
+      else
+        mapEvents.getRouteData({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
     }
     else
       routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;

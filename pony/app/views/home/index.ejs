@@ -39,15 +39,20 @@
             </div
             <div class="submit-route">
               <div class="form-inline-submit">
-              <div class="custom-number-input">
-                <span data-step="1" data-increment="-1"><i class="fa fa-minus" aria-hidden="true"></i></span>
-                <input class="custom-number-input-textbox" type="text" value="125" data-max="1000" data-min="0" readonly id="route-days-ago">
-                <span data-step="1" data-increment="1"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                <div class="custom-number-input">
+                  <span data-step="1" data-increment="-1"><i class="fa fa-minus" aria-hidden="true"></i></span>
+                  <input class="custom-number-input-textbox" type="text" value="125" data-max="1000" data-min="0" readonly id="route-days-ago">
+                  <span data-step="1" data-increment="1"><i class="fa fa-plus" aria-hidden="true"></i></span>
+                </div>
+                <input type="button" value="Submit route" class="btn btn-brown" id="submit-route-btn">
               </div>
-              <input type="button" value="Submit route" class="btn btn-brown" id="submit-route-btn">
-              <input type="date" class="get-between-dates">
-              <input type="date" class="get-between-dates">
-           </div>
+              <div class="form-inline-submit">
+                <label for="start-date">Start:</label>
+                <input name="start-date" type="date" class="get-between-dates" value="2017-03-16">
+                <label for="end-date">End:</label>
+                <input name="end-date" type="date" class="get-between-dates">
+                <input type="button" value="Get data between dates" class="btn btn-brown" id="get-route-between-dates-btn">
+              </div>
           </div>
         </div>
       </div>

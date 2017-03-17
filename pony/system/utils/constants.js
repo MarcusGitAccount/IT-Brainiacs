@@ -25,7 +25,7 @@ module.exports = {
     mm: Math.pow(10, -3)
   },
   EPSILON: {
-    inf: -2 * Math.pow(10, 6),
-    sup:  2 * Math.pow(10, 6)
+    inf: -2 * Math.pow(10, -6),
+    sup:  2 * Math.pow(10, -6)
   }
 }
