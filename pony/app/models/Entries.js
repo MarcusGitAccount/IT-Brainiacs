@@ -87,9 +87,13 @@ class Entries extends BaseModel {
   }
   
   routeBetweenDates(polygon, start, end, callback) {
-    const statement = mysql.format(`select * from ?? where (date_format(from_unixtime(unix_timestamp(timestamp)), '%m-%d-%Y')
-      between date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y') and date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y')) and 
-      contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')')))`, [this.tableName, start, end]);
+    const statement = mysql.format(`select *, @date := date_format(from_unixtime(unix_timestamp(timestamp)), '%m-%d-%Y') as date, 
+      @hour := convert(date_format(from_unixtime(unix_timestamp(timestamp)), '%H'), UNSIGNED INTEGER) as hour from ?? 
+      where (date_format(from_unixtime(unix_timestamp(timestamp)), '%m-%d-%Y')
+      between date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y') 
+      and date_format(from_unixtime(unix_timestamp(?)), '%m-%d-%Y')) 
+      and contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')'))) 
+      order by date and hour asc`, [this.tableName, start, end]);
   
     console.log(statement);
     this.query(statement, (err, result, fields) => {

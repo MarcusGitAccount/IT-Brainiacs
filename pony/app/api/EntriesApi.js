@@ -81,7 +81,6 @@ class EntriesApi {
   }
   
   routeBetweenDates(request, response) {
-    console.log("here I am");
     entries.routeBetweenDates(request.body.polygon, request.body.dates.start, request.body.dates.end, (error, result, fields) => {
       const route = new Route(request.body.route.routePoints, request.body.route.steps);
       
@@ -90,7 +89,8 @@ class EntriesApi {
         return ;
       }
       
-      response.status(200).json(route.getResultsFromNormalRoute(result));
+      //response.status(200).json(result);
+      response.status(200).json(route.getResultFromRouteBetweenDates(result));
     });
   }
 }

@@ -236,7 +236,7 @@ let mapEvents = {
       follower.classList.remove('visible');
     }
   },
-  colors: ['#4a148c ', '#2196f3', '#00bfa5 ', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064'],
+  colors: ['#4a148c', '#2196f3', '#00bfa5', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064'],
   index: 0,
   polygonArray: [[]],
   linesArray: [[]],
@@ -326,7 +326,6 @@ function prepareRouteSubmission() {
 function getDataBetweenDatesClick(e) {
   const params = prepareRouteSubmission();
   
-  console.log(params);
   if (params.error)
     return;
 
@@ -584,6 +583,43 @@ function polygonClick(e) {
   },wait);
 }
 
+function createPolygon() {
+  const coords = mapEvents.polygonPointsArray[mapEvents.index].join(', ');
+  
+  clearMarkers(mapEvents.polygonArray[mapEvents.index]);
+  clearMarkers(mapEvents.linesArray[mapEvents.index]);
+  
+  mapEvents.polygonArray.push([]);
+  mapEvents.polygonPointsArray.push([]);
+  mapEvents.linesArray.push([]);
+  mapEvents.latLng.push([]);
+  
+  const polygon = new google.maps.Polygon({
+    paths: mapEvents.latLng[mapEvents.index],
+    strokeColor: mapEvents.colors[mapEvents.index % mapEvents.colors.length],
+    strokeOpacity: 0.8,
+    strokeWeight: 3,
+    fillColor: '#e0e0e0',
+    fillOpacity: 0.35
+  });
+  
+  polygon.setMap(map);
+  google.maps.event.addListener(polygon, 'mouseover', polygonMoueOver);
+  google.maps.event.addListener(polygon, 'mouseout', polygonMoueOut);
+  google.maps.event.addListener(polygon, 'rightclick', polygonRightClick);
+  google.maps.event.addListener(polygon, 'click', polygonClick);
+  mapEvents.polygons.push(polygon);
+  mapEvents.index++;
+  
+  mapEvents.getPointsInPolygon(coords, (error, data) => {
+    console.log(data);
+    if (error) 
+      return ;
+    
+    polygon['data'] = data;
+  });
+}
+
 function drawLine(path, map) {
   const polyline = new google.maps.Polyline({
     path: path,
@@ -596,40 +632,7 @@ function drawLine(path, map) {
 
   if (mapEvents.polygonPointsArray[mapEvents.index].length > 2) {
     if (mapEvents.polygonPointsArray[mapEvents.index][0] === mapEvents.polygonPointsArray[mapEvents.index][mapEvents.polygonPointsArray[mapEvents.index].length - 1]) {
-      const coords = mapEvents.polygonPointsArray[mapEvents.index].join(', ');
-      
-      clearMarkers(mapEvents.polygonArray[mapEvents.index]);
-      clearMarkers(mapEvents.linesArray[mapEvents.index]);
-      
-      mapEvents.polygonArray.push([]);
-      mapEvents.polygonPointsArray.push([]);
-      mapEvents.linesArray.push([]);
-      mapEvents.latLng.push([]);
-      
-      const polygon = new google.maps.Polygon({
-        paths: mapEvents.latLng[mapEvents.index],
-        strokeColor: mapEvents.colors[mapEvents.index % mapEvents.colors.length],
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: '#e0e0e0',
-        fillOpacity: 0.35
-      });
-      
-      polygon.setMap(map);
-      google.maps.event.addListener(polygon, 'mouseover', polygonMoueOver);
-      google.maps.event.addListener(polygon, 'mouseout', polygonMoueOut);
-      google.maps.event.addListener(polygon, 'rightclick', polygonRightClick);
-      google.maps.event.addListener(polygon, 'click', polygonClick);
-      mapEvents.polygons.push(polygon);
-      mapEvents.index++;
-      
-      mapEvents.getPointsInPolygon(coords, (error, data) => {
-        console.log(data);
-        if (error) 
-          return ;
-        
-        polygon['data'] = data;
-    });
+      createPolygon();
     }
   }
 }
