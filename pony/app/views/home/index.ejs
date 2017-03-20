@@ -30,18 +30,29 @@
           </div>
           <div class="panel-body ubuntu">
             <div class="row" id="received-data"></div>
+            <div id="charts" class="display-charts">
+              <p>Total distance: <span>9.54km</span></p>
+              <p>Overall representation of data</p>
+              <div id="overall-chart"></div>
+              <p>Data representation in: <span>11-05-2016</span></p>
+              <div id="day-by-day-chart"></div>
+              <div id="chart-navigation">
+                <a data-change="-1"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+                <a data-change="1"><i class="fa fa-chevron-right" aria-hidden="true"></i></a>
+              </div>
+            </div>
             <div class="form-inline row routes">
               <div class="form-group col-lg-4 col-xl-3 col-sm-6">
                 <input type="adress" class="form-control" placeholder="Enter adress">
                 <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
                 <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>
               </div>
-            </div
+            </div>
             <div class="submit-route">
               <div class="form-inline-submit">
                 <div class="custom-number-input">
                   <span data-step="1" data-increment="-1"><i class="fa fa-minus" aria-hidden="true"></i></span>
-                  <input class="custom-number-input-textbox" type="text" value="125" data-max="1000" data-min="0" readonly id="route-days-ago">
+                  <input class="custom-number-input-textbox" type="text" value="133" data-max="1000" data-min="0" readonly id="route-days-ago">
                   <span data-step="1" data-increment="1"><i class="fa fa-plus" aria-hidden="true"></i></span>
                 </div>
                 <input type="button" value="Submit route" class="btn btn-brown" id="submit-route-btn">
@@ -53,6 +64,8 @@
                 <input name="end-date" type="date" class="get-between-dates">
                 <input type="button" value="Get data between dates" class="btn btn-brown" id="get-route-between-dates-btn">
               </div>
+            </div>
+            <div id="chart-div"></div>
           </div>
         </div>
       </div>
@@ -109,11 +122,13 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6z7kDQmH4z1mt3U9UNJ4-apW6yOM-8g4&callback=initMap" defer></script>
   <script src="/assets/js/home.js"></script>
   <script src="/assets/js/functions.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="/assets/bootstrap/dist/js/bootstrap.min.js"></script>
+  
 </body>
 </html>
 

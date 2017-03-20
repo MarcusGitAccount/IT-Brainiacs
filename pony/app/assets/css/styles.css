@@ -422,3 +422,36 @@ table tr {
 .form-inline-submit > label {
   padding-top: 7.5px;
 }
+
+#charts {
+  display: none;
+}
+
+#charts.display-charts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#charts > p > span {
+  color: #fb8c00;
+}
+
+#chart-navigation {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#chart-navigation a {
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, .8);
+  color: white;
+  padding: .5em .75em !important;
+  margin: 0 5px;
+}
+
+#chart-navigation a:hover {
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 1);
+}

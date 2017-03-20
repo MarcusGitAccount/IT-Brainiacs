@@ -162,13 +162,13 @@ class PanelLogic {
       0: () => {
         this.displayButton.innerHTML = '<i class="fa fa-plus-square" aria-hidden="true"></i>';
         this.parent.parentNode.classList.add('hidden');
-      }
-      ,
+      },
       1: () => {
         this.displayButton.innerHTML = '<i class="fa fa-minus-square" aria-hidden="true"></i>';
         this.parent.parentNode.classList.remove('hidden');
       }
     }
+    this.charts = document.querySelector('#charts');
     this.initialDatesInputsValues();
     this.addEvents();
   }
@@ -207,7 +207,9 @@ class PanelLogic {
   initialDatesInputsValues() {
     const date = this.getTodayDateFormat();
     
-    this.dateInputs.forEach(input => input.value = date);
+    this.dateInputs[0].value = '2016-11-05';
+    this.dateInputs[1].value = '2016-11-08';
+    //this.dateInputs.forEach(input => input.value = date);
   }
 }
 
@@ -227,6 +229,8 @@ let map;
 
 let mapEvents = {
   routeDistance: 0,
+  chartData: null,
+  chart: null,
   directionsService: null,
   directionsDisplay: null,
   tooltip: {
@@ -290,13 +294,15 @@ let mapEvents = {
         callback(null, response);
         return ;
       }
-      
-      callback(new Error('Error while posting data'));
     }
     XHR.send(JSON.stringify({route, polygon, dates}));
   }
-  
 };
+
+function initCharts() {
+  google.charts.load('current', {packages: ['corechart', 'line']});
+  //google.charts.setOnLoadCallback(drawBackgroundColor);
+}
 
 function togglePanelBody(e) {
   let current = (routePanelLogic.displayed + 1) % 2;
@@ -580,7 +586,7 @@ function polygonClick(e) {
 
   mapEvents.tooltip.timeout = setTimeout(() => {
     follower.classList.remove('visible');
-  },wait);
+  }, wait);
 }
 
 function createPolygon() {
@@ -612,7 +618,6 @@ function createPolygon() {
   mapEvents.index++;
   
   mapEvents.getPointsInPolygon(coords, (error, data) => {
-    console.log(data);
     if (error) 
       return ;
     
@@ -690,6 +695,7 @@ function printRouteData(error, result) {
     return ;
   };
   
+  routePanelLogic.charts.classList.remove('display-charts');
   routePanelLogic.dataDiv.innerHTML = `
     <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
       <p>Distance: <span>${result.distance}</span> km &nbsp <i class="fa fa-road" aria-hidden="true"></i></p>
@@ -723,7 +729,7 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
       mapEvents.directionsDisplay.setDirections(response);
       if (betweendates) {
-        mapEvents.getRouteDataBetweenDates({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
+        mapEvents.getRouteDataBetweenDates({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, drawCharts);
       }
       else
         mapEvents.getRouteData({routePoints: response.routes[0].overview_path, steps: response.routes[0].legs[0].steps}, coords, days, printRouteData);
@@ -731,6 +737,48 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
     else
       routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
   });
+}
+
+function drawCharts(error, result) {
+  let data = new google.visualization.DataTable();
+  let keys = Object.keys(result);
+  let options = {
+    hAxis: {
+      title: 'Date'
+    },
+    vAxis: {
+      title: 'Time'
+    },
+    backgroundColor: '#fff'
+  };
+  
+  if (error || result.error !== null) {
+    routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML;
+    return ;
+  }
+  
+  data.addColumn('string', 'Date');
+  data.addColumn('number', 'Time');
+  data['size'] = Object.keys(result).length;
+
+  keys.splice(2, keys.length - 2).forEach(date => {
+    data.addRow([date.substr(0, 5), result[date].overall.time]);
+  });;
+  
+  routePanelLogic.charts.classList.add('display-charts');
+  
+  mapEvents.chartData = result;
+  routePanelLogic.dataDiv.innerHTML = '';
+  
+  drawChat(routePanelLogic.charts.querySelector('#overall-chart'), data, options);
+}
+
+function drawCharrtByDay(data, day) {}
+
+function drawChat(element, data, options) {
+  console.log(data);
+  mapEvents.chart = new google.visualization.LineChart(element);
+  mapEvents.chart.draw(data, options);
 }
 
 filterButton.addEventListener('click', (e) => {
@@ -757,3 +805,4 @@ searchByIdButton.addEventListener('click', (e) => {
 });
 
 initList();
+initCharts();

@@ -16,6 +16,7 @@ function singleDayObject() {
   this.noon = new resultObject();
   this.evening = new resultObject();
   this.night = new resultObject();
+  this.overall = new resultObject();
 }
 
 class Route {
@@ -102,10 +103,15 @@ class Route {
     this.result.distance = this.getDistance();
     Object.keys(this.routeTripIds).forEach(current => this.result.speed += this.routeTripIds[current].total / this.routeTripIds[current].records);
     this.result.cars = Object.keys(this.routeTripIds).length;
-    this.result.speed = (this.result.speed /= this.result.cars).toFixed(2);
-    this.result.time = ((this.result.distance / 1000) / this.result.speed * 60).toFixed(2);
-    this.result.distance = (this.result.distance / 1000).toFixed(2);
+    this.result.speed = (this.result.speed /= this.result.cars);
+    this.result.time = ((this.result.distance / 1000) / this.result.speed * 60);
+    this.result.distance = (this.result.distance / 1000);
 
+
+    this.result.distance = Math.round(this.result.distance * 100) / 100;
+    this.result.speed = Math.round(this.result.speed * 100) / 100;
+    this.result.time = Math.round(this.result.time * 100) / 100;
+    
     return this.result;
   }
   
@@ -146,21 +152,38 @@ class Route {
 
     this.resultBetweenDates.distance = this.getDistance();
     Object.keys(this.routeTripIdsBetweenDates).forEach(date => {
-      console.log("149 %s", date);
+      let records = 0;
+
       this.resultBetweenDates[date] = new singleDayObject();
       Object.keys(this.routeTripIdsBetweenDates[date]).forEach(dayPart => {
-        console.log("152 %s", dayPart);
+        
         Object.keys(this.routeTripIdsBetweenDates[date][dayPart]).forEach(current => {
            this.resultBetweenDates[date][dayPart].speed += this.routeTripIdsBetweenDates[date][dayPart][current].total / this.routeTripIdsBetweenDates[date][dayPart][current].records;
         });
         
         this.resultBetweenDates[date][dayPart].cars = Object.keys(this.routeTripIdsBetweenDates[date][dayPart]).length;
-        this.resultBetweenDates[date][dayPart].speed = (this.resultBetweenDates[date][dayPart].speed /= this.resultBetweenDates[date][dayPart].cars).toFixed(2);
-        this.resultBetweenDates[date][dayPart].time = ((this.resultBetweenDates.distance / 1000) / this.resultBetweenDates[date][dayPart].speed * 60).toFixed(2);
+        this.resultBetweenDates[date][dayPart].speed = (this.resultBetweenDates[date][dayPart].speed /= this.resultBetweenDates[date][dayPart].cars);
+        this.resultBetweenDates[date][dayPart].time = ((this.resultBetweenDates.distance / 1000) / this.resultBetweenDates[date][dayPart].speed * 60);
+        
+        if (this.resultBetweenDates[date][dayPart].cars && this.resultBetweenDates[date][dayPart].speed && this.resultBetweenDates[date][dayPart].time) {
+          this.resultBetweenDates[date]['overall'].speed += this.resultBetweenDates[date][dayPart].speed;
+          this.resultBetweenDates[date]['overall'].cars += this.resultBetweenDates[date][dayPart].cars
+          this.resultBetweenDates[date]['overall'].time += this.resultBetweenDates[date][dayPart].time;
+          records++;
+        }
+        
+        this.resultBetweenDates[date][dayPart].speed = Math.round(this.resultBetweenDates[date][dayPart].speed * 100) / 100;
+        this.resultBetweenDates[date][dayPart].time = Math.round(this.resultBetweenDates[date][dayPart].time * 100) / 100;
       });
+      
+      this.resultBetweenDates[date]['overall'].speed = Math.round((this.resultBetweenDates[date]['overall'].speed / records) * 100) / 100;//.toFixed(2);
+      this.resultBetweenDates[date]['overall'].cars = Math.round(this.resultBetweenDates[date]['overall'].cars / records);
+      this.resultBetweenDates[date]['overall'].time = Math.round(this.resultBetweenDates[date]['overall'].time / records * 100) / 100;//.toFixed(2);
+      this.resultBetweenDates[date]['overall'].records = records;
     });
-    //console.log("line 149", JSON.stringify(this.resultBetweenDates, null, 2));
-    
+
+    this.resultBetweenDates.distance = Math.round(this.getDistance() / 1000 * 100) / 100;
+
     return this.resultBetweenDates;
   }
 }

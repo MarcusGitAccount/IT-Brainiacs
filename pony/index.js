@@ -22,6 +22,10 @@ app.use('/assets', express.static(path.join(__dirname, 'app/assets')))
 app.use('/api/admins', adminRoute);
 app.use('/api/entries', entriesRoute);
 
+app.get('/', (request, response) => {
+  response.redirect('/home');
+});
+
 app.use('/home', homeRoute);
 app.use('*', (request, response) => {
   response.status(404);
