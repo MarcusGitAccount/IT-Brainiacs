@@ -428,12 +428,17 @@ table tr {
 }
 
 #charts.display-charts {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: block;
 }
 
-#charts > p > span {
+.middle {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#charts > div > .middle > p > span {
   color: #fb8c00;
 }
 
@@ -449,9 +454,14 @@ table tr {
   color: white;
   padding: .5em .75em !important;
   margin: 0 5px;
+  margin-bottom: 2.5vh;
 }
 
 #chart-navigation a:hover {
   cursor: pointer;
   background-color: rgba(0, 0, 0, 1);
+}
+
+#day-by-day-chart, #overall-chart {
+  margin: 2vh 0;
 }

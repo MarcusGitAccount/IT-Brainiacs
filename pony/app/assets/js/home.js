@@ -170,6 +170,7 @@ class PanelLogic {
     }
     this.charts = document.querySelector('#charts');
     this.initialDatesInputsValues();
+    this.chartAnchors = this.charts.querySelectorAll('a');
     this.addEvents();
   }
   
@@ -185,6 +186,7 @@ class PanelLogic {
     this.submitButton.addEventListener('click', submitRoute);
     this.getDataBetweenDates.addEventListener('click', getDataBetweenDatesClick);
     this.displayButton.addEventListener('click', togglePanelBody);
+    this.chartAnchors.forEach(btn => btn.addEventListener('click', chartButtonClick));
   }
   
   getRoute() {
@@ -298,6 +300,23 @@ let mapEvents = {
     XHR.send(JSON.stringify({route, polygon, dates}));
   }
 };
+
+let chartPagination = {
+  MIN: 1,
+  MAX: null,
+  current: 1,
+  dates: []
+}
+
+function chartButtonClick(e) {
+  const current = parseInt(this.dataset.change) + chartPagination.current;
+  
+  if (current < chartPagination.MIN || current > chartPagination.MAX)
+    return ;
+    
+  drawChartByDay(current);
+  chartPagination.current = current;
+}
 
 function initCharts() {
   google.charts.load('current', {packages: ['corechart', 'line']});
@@ -740,6 +759,8 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
 }
 
 function drawCharts(error, result) {
+  console.log(JSON.stringify(result, null, 2));
+  
   let data = new google.visualization.DataTable();
   let keys = Object.keys(result);
   let options = {
@@ -759,26 +780,58 @@ function drawCharts(error, result) {
   
   data.addColumn('string', 'Date');
   data.addColumn('number', 'Time');
-  data['size'] = Object.keys(result).length;
+  data['size'] = keys.length - 2;
 
   keys.splice(2, keys.length - 2).forEach(date => {
     data.addRow([date.substr(0, 5), result[date].overall.time]);
   });;
   
-  routePanelLogic.charts.classList.add('display-charts');
+  if (data['size'] > 0) {
+    chartPagination.MAX = data['size'];
+    chartPagination.dates = Object.keys(result).splice(2, Object.keys(result).length - 2).sort();
+  }
   
+  routePanelLogic.charts.classList.add('display-charts');
+  routePanelLogic.charts.querySelector('span#km').innerHTML = `${result.distance}km`;
   mapEvents.chartData = result;
   routePanelLogic.dataDiv.innerHTML = '';
   
-  drawChat(routePanelLogic.charts.querySelector('#overall-chart'), data, options);
+  drawChart(document.querySelector('#overall-chart'), data, options);
+  drawChartByDay(1);
 }
 
-function drawCharrtByDay(data, day) {}
+function drawChartByDay(day) {
+  const chart = new google.visualization.LineChart(document.querySelector('#day-by-day-chart'));
+  let data = new google.visualization.DataTable();
 
-function drawChat(element, data, options) {
+  let options = {
+    hAxis: {
+      title: 'Day time'
+    },
+    vAxis: {
+      title: 'Time'
+    },
+    backgroundColor: '#fff'
+  };
+  
+  day--;
+  data.addColumn('string', 'Day time');
+  data.addColumn('number', 'Time');
+  data.addRows([
+    ['morning', mapEvents.chartData[chartPagination.dates[day]].morning.time],
+    ['noon', mapEvents.chartData[chartPagination.dates[day]].noon.time],
+    ['evening', mapEvents.chartData[chartPagination.dates[day]].evening.time],
+    ['night', mapEvents.chartData[chartPagination.dates[day]].night.time]
+  ]);
+  routePanelLogic.charts.querySelector('span#time').innerHTML = `${chartPagination.dates[day]}`;
+
+  chart.draw(data, options);
+}
+
+function drawChart(element, data, options) {
   console.log(data);
-  mapEvents.chart = new google.visualization.LineChart(element);
-  mapEvents.chart.draw(data, options);
+  const chart = new google.visualization.LineChart(element);
+  chart.draw(data, options);
 }
 
 filterButton.addEventListener('click', (e) => {
