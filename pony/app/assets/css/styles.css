@@ -465,3 +465,7 @@ table tr {
 #day-by-day-chart, #overall-chart {
   margin: 2vh 0;
 }
+
+#activate-rows-list:hover {
+  cursor: pointer;
+}

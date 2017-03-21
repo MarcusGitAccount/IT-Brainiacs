@@ -154,6 +154,8 @@ class PanelLogic {
     this.dateInputs = document.querySelectorAll('input[type=date]');
     this.displayButton = document.querySelector('#activate-route-panel');
     this.displayed = 1;
+    this.displayRowsButton = document.querySelector('#activate-rows-list');
+    this.displayedRows = 0;
     this.submitButton = document.querySelector('#submit-route-btn');
     this.dataDiv = document.querySelector('#received-data');
     this.route = [];
@@ -166,6 +168,16 @@ class PanelLogic {
       1: () => {
         this.displayButton.innerHTML = '<i class="fa fa-minus-square" aria-hidden="true"></i>';
         this.parent.parentNode.classList.remove('hidden');
+      }
+    }
+    this.displayRowsLogic = {
+      0: () => {
+        this.displayRowsButton.innerHTML = '<i class="fa fa-plus-square" aria-hidden="true"></i>';
+        document.querySelector('#rows-panel-body').classList.add('hidden');
+      },
+      1: () => {
+        this.displayRowsButton.innerHTML = '<i class="fa fa-minus-square" aria-hidden="true"></i>';
+        document.querySelector('#rows-panel-body').classList.remove('hidden');
       }
     }
     this.charts = document.querySelector('#charts');
@@ -187,6 +199,7 @@ class PanelLogic {
     this.getDataBetweenDates.addEventListener('click', getDataBetweenDatesClick);
     this.displayButton.addEventListener('click', togglePanelBody);
     this.chartAnchors.forEach(btn => btn.addEventListener('click', chartButtonClick));
+    this.displayRowsButton.addEventListener('click', toggleRowsPanelBody);
   }
   
   getRoute() {
@@ -328,6 +341,13 @@ function togglePanelBody(e) {
   
   routePanelLogic.displayed = current;
   routePanelLogic.displayLogic[current]();
+}
+
+function toggleRowsPanelBody(e) {
+  let current = (routePanelLogic.displayedRows + 1) % 2;
+  
+  routePanelLogic.displayedRows = current;
+  routePanelLogic.displayRowsLogic[current]();
 }
 
 function prepareRouteSubmission() {
