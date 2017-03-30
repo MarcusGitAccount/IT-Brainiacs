@@ -243,6 +243,8 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  lastFunction: null,
+  trustedFunction: true,
   routeDistance: 0,
   chartData: null,
   chart: null,
@@ -376,6 +378,7 @@ function getDataBetweenDatesClick(e) {
 
   routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
   getRoute(params.start, params.end, params.dates, params.waypoints, true);
+  mapEvents.lastFunction = 'getDataBetweenDatesClick';
 }
 
 function submitRoute(e) {
@@ -386,6 +389,7 @@ function submitRoute(e) {
 
   routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
   getRoute(params.start, params.end, params.days, params.waypoints);
+  mapEvents.lastFunction = 'submitRoute';
 }
 
 function addWaypointClick(e) {
@@ -431,8 +435,30 @@ function initMap() {
   map.setOptions({ styles: mapStyles.retro});
   addMapEvents(map);
   mapEvents.directionsService = new google.maps.DirectionsService();
-  mapEvents.directionsDisplay =  new google.maps.DirectionsRenderer();
+  mapEvents.directionsDisplay =  new google.maps.DirectionsRenderer({
+    draggable: true
+  });
   mapEvents.directionsDisplay.setMap(map);
+  mapEvents.directionsDisplay.addListener('directions_changed', () => {
+    const changed = mapEvents.directionsDisplay.getDirections();
+    const MAX  = { lat: changed.routes[0].bounds.f.f, lng: changed.routes[0].bounds.b.f};
+    const MIN  = { lat: changed.routes[0].bounds.f.b, lng: changed.routes[0].bounds.b.b};
+    const coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
+    const data = prepareRouteSubmission();
+    
+    if (mapEvents.trustedFunction === true) {
+      mapEvents.trustedFunction = false;
+      return ;
+    }
+    
+    routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
+    if (mapEvents.lastFunction === 'submitRoute')
+      mapEvents.getRouteData({routePoints: changed.routes[0].overview_path, steps: changed.routes[0].legs[0].steps}, coords, data.days, printRouteData);
+    else
+      mapEvents.getRouteDataBetweenDates({routePoints: changed.routes[0].overview_path, steps: changed.routes[0].legs[0].steps}, coords, data.dates, drawCharts);
+    console.log(changed);
+    console.log(prepareRouteSubmission());
+  });
 }
 
 function addMarker(coords) {
@@ -599,14 +625,14 @@ function polygonRightClick(e) {
 
 function polygonClick(e) {
   const position = {
-    x: e.za.x + window.scrollX,
-    y: e.za.y + window.scrollY
+    x: e.ya.x + window.scrollX,
+    y: e.ya.y + window.scrollY
   }
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.za.x + followerLimits.width > mapLimits.right)
+  if (e.ya.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
-  if (e.za.y + followerLimits.height > mapLimits.bottom)
+  if (e.ya.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);
@@ -764,7 +790,8 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
       const MAX = { lat: response.routes[0].bounds.f.f, lng: response.routes[0].bounds.b.f};
       const MIN = { lat: response.routes[0].bounds.f.b, lng: response.routes[0].bounds.b.b};
       let coords = '';
-
+      
+      mapEvents.trustedFunction = true;
       coords = `${MAX.lat} ${MIN.lng}, ${MAX.lat} ${MAX.lng}, ${MIN.lat} ${MAX.lng}, ${MIN.lat} ${MIN.lng}, ${MAX.lat} ${MIN.lng}`;
       mapEvents.directionsDisplay.setDirections(response);
       if (betweendates) {
@@ -849,7 +876,6 @@ function drawChartByDay(day) {
 }
 
 function drawChart(element, data, options) {
-  console.log(data);
   const chart = new google.visualization.LineChart(element);
   chart.draw(data, options);
 }

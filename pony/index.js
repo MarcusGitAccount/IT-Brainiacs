@@ -3,12 +3,17 @@
 const express = require('express');
 const path = require('path');
 const ejs_layouts = require('ejs-layouts');
+const reloadify = require('reloadify');
 
+const Minify = require('./system/helpers/Minify');
 const adminRoute = require('./app/routes/AdministratorsRouter')();
 const entriesRoute = require('./app/routes/EntriesRouter')();
 const homeRoute = require('./app/routes/HomeRouter')();
 
 const app = express();
+//const minifier = new Minify(path.join(__dirname, 'app/assets/js'));
+
+//minifier.minify();
 
 app.set('case sensivitive routing', false);
 app.set('view engine', 'ejs');
@@ -31,7 +36,15 @@ app.use('*', (request, response) => {
   response.status(404);
   response.render('error.ejs');
 });
+/*
+reloadify(app, path.join(__dirname, 'app/assets/views'));
 
+function reloadify(app, dir) {
+  if (process.env.NODE_ENV) {
+    
+  }
+}
+*/
 const listener = app.listen(process.env.PORT || 8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });

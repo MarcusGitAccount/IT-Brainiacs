@@ -8,7 +8,6 @@ class InsertFromJSONFile {
   insertFromFile(path) {
     fs.readFile(path, (error, data) => {
       if (error) {
-        console.log('error, sunshine');
         return;
       }
 
@@ -20,7 +19,7 @@ class InsertFromJSONFile {
             console.log(error);
             return;
           }
-        })
+        });
       });
     });
   }
