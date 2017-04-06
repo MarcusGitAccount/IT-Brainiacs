@@ -27,7 +27,10 @@
   },
   "homepage": "https://github.com/MarcusGitAccount/IT-Brainiacs#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
+    "client-sessions": "^0.7.0",
+    "csurf": "^1.9.0",
     "ejs": "^2.5.6",
     "ejs-layouts": "0.0.1",
     "express": "^4.15.2",
