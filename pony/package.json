@@ -27,15 +27,15 @@
   },
   "homepage": "https://github.com/MarcusGitAccount/IT-Brainiacs#readme",
   "dependencies": {
-    "body-parser": "^1.16.1",
-    "ejs": "^2.5.5",
+    "body-parser": "^1.17.1",
+    "ejs": "^2.5.6",
     "ejs-layouts": "0.0.1",
-    "express": "^4.14.1",
-    "express-ejs-layouts": "^2.2.0",
+    "express": "^4.15.2",
+    "express-ejs-layouts": "^2.3.0",
     "mysql": "^2.13.0",
     "rekuire": "^0.1.9",
     "reloadify": "^0.2.2",
-    "uglify-js": "^2.8.16",
+    "uglify-js": "^2.8.21",
     "uglifycss": "0.0.25"
   }
 }

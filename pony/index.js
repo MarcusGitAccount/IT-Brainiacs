@@ -45,6 +45,6 @@ function reloadify(app, dir) {
   }
 }
 */
-const listener = app.listen(process.env.PORT || 8080, process.env.IP, () => {
+const listener = app.listen(8080, '46.226.109.110', () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
