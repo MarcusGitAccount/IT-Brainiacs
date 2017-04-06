@@ -146,7 +146,7 @@ class PanelLogic {
         <div class="dot"></div>
       </div>`;
     this.formHTML = `
-          <input type="adress" class="form-control" placeholder="Enter adress">
+          <input type="adress" class="form-control" placeholder="Enter address">
           <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     this.parent = document.querySelector('.form-inline.row.routes');
@@ -243,6 +243,7 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  lastRouteRequest: null,
   lastFunction: null,
   trustedFunction: true,
   routeDistance: 0,
@@ -440,6 +441,7 @@ function initMap() {
   });
   mapEvents.directionsDisplay.setMap(map);
   mapEvents.directionsDisplay.addListener('directions_changed', () => {
+
     const changed = mapEvents.directionsDisplay.getDirections();
     const MAX  = { lat: changed.routes[0].bounds.f.f, lng: changed.routes[0].bounds.b.f};
     const MIN  = { lat: changed.routes[0].bounds.f.b, lng: changed.routes[0].bounds.b.b};
@@ -450,7 +452,7 @@ function initMap() {
       mapEvents.trustedFunction = false;
       return ;
     }
-    
+
     routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
     if (mapEvents.lastFunction === 'submitRoute')
       mapEvents.getRouteData({routePoints: changed.routes[0].overview_path, steps: changed.routes[0].legs[0].steps}, coords, data.days, printRouteData);
@@ -785,6 +787,7 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
     unitSystem: google.maps.UnitSystem.METRIC
   };
   
+  mapEvents.lastRouteRequest = request;
   mapEvents.directionsService.route(request, (response, status) => {
     if (status === google.maps.DirectionsStatus.OK) {
       const MAX = { lat: response.routes[0].bounds.f.f, lng: response.routes[0].bounds.b.f};

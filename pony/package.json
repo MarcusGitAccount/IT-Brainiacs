@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --harmony index.js"
+    "start": "nodemon --harmony index.js",
+    "startdb": "mysql-ctl start",
+    "stopdb": "mysql-ctl stop"
   },
   "repository": {
     "type": "git",
