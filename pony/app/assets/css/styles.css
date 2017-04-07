@@ -483,3 +483,14 @@ table tr {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.95); 
 }
+
+.control {
+  width: auto !important;
+  display: inline !important;
+}
+
+@media screen and (max-width: 990px) {
+  .nope {
+    display: none;
+  }
+}

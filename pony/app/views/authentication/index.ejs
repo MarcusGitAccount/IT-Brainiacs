@@ -38,11 +38,11 @@
             <form action="/home/login" method="post" id="user-login" class="form-horizontal">
               <div class="form-group">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <label for="user_login_name" class="col-md-2 control-label input-margin">Name</label>
+                <label for="user_login_name" class="col-md-2 control-label input-margin nope">Name</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_login_name" type="text" class="form-control" placeholder="Enter username" required value="<% if (typeof user == 'object' && user){%><%=user.name%><%}%>">
                 </div>
-                <label for="user_login_password" class="col-md-2 control-label input-margin">Password</label>
+                <label for="user_login_password" class="col-md-2 control-label input-margin nope">Password</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_login_password" type="password" class="form-control" placeholder="Enter password" value="" required>
                 </div>
@@ -64,19 +64,19 @@
             <form action="/home/register" method="post" id="user-signup" class="form-horizontal">
               <div class="form-group">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <label for="user_signup_name" class="col-md-2 control-label input-margin">Name</label>
+                <label for="user_signup_name" class="col-md-2 control-label input-margin nope">Name</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_signup_name" type="text" class="form-control" placeholder="Enter username" required   pattern="[\S]{3,32}" title='Name must have at least 3 characters with no white spaces' value="<% if (typeof tryagain == 'object' && tryagain){%><%=tryagain.name%><%}%>">
                 </div>
-                <label for="user_signup_password_first" class="col-md-2 control-label input-margin">Password</label>
+                <label for="user_signup_password_first" class="col-md-2 control-label input-margin nope">Password</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_signup_password_first" type="password" class="form-control" placeholder="Enter password" required pattern="\S{6,32}" title='Passwords must have at least 6 characters and no white spaces'>
                 </div>
-                <label for="user_signup_password_second" class="col-md-2 control-label input-margin">Password</label>
+                <label for="user_signup_password_second" class="col-md-2 control-label input-margin nope">Password</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_signup_password_second" type="password" class="form-control" placeholder="Enter password again" required pattern="\S{6,32}" title='Passwords must have at least 6 characters and no white spaces'>
                 </div>
-                <label for="user_signup_email" class="col-md-2 control-label input-margin">Email</label>
+                <label for="user_signup_email" class="col-md-2 control-label input-margin nope">Email</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
                   <input name="user_signup_email" type="email" class="form-control" placeholder="Enter email" required title='Invalid email adress' value="<% if (typeof tryagain == 'object' && tryagain){%><%=tryagain.email%><%}%>">
                 </div>

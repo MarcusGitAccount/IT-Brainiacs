@@ -35,6 +35,7 @@
     "ejs-layouts": "0.0.1",
     "express": "^4.15.2",
     "express-ejs-layouts": "^2.3.0",
+    "mongoose": "^4.9.3",
     "mysql": "^2.13.0",
     "rekuire": "^0.1.9",
     "reloadify": "^0.2.2",

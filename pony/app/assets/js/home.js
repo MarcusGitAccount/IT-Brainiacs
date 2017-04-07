@@ -146,7 +146,7 @@ class PanelLogic {
         <div class="dot"></div>
       </div>`;
     this.formHTML = `
-          <input type="adress" class="form-control" placeholder="Enter address">
+          <input type="adress" class="form-control control" placeholder="Enter address">
           <button class="btn btn-brown add-waypoint"><i class="fa fa-plus" aria-hidden="true"></i></button>
           <button class="btn btn-brown delete-waypoint"><i class="fa fa-eraser" aria-hidden="true"></i></button>`;
     this.parent = document.querySelector('.form-inline.row.routes');
