@@ -628,7 +628,7 @@ function polygonRightClick(e) {
 function polygonClick(e) {
   const position = {
     x: e.ya.x + window.scrollX,
-    y: e.ya.y + window.scrollY
+    y: e.ya.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
   }
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   

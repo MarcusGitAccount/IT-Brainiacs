@@ -7,23 +7,20 @@ const session = require('client-sessions');
 const csrf = require('csurf');
 
 const AuthenticationController = require('../controllers/AuthenticationController');
+const middleware = require('../../system/helpers/Middleware');
 
 const authentication = new AuthenticationController();
 
 module.exports = (function route() {
   router.use(parser.urlencoded({ 'extended': true}));
   router.use(parser.json());
-  router.use(session({
-    'cookieName': 'session',
-    'secret': 'Oh, you really want to know? Never!',
-    'duration': 60 * 60 * 1000,
-    'activeDuration': 5 * 60 * 1000,
-    'httpOnly': true,
-    'ephemeral': true
-  }));
+  router.use(session(middleware.sessionObject));
   router.use(csrf());
   
   router.get('/', authentication.index);
+  router.post('/login', authentication.login);
+  router.post('/register', authentication.register);
+  router.get('/logout', authentication.logout);
   
   return router;
 });

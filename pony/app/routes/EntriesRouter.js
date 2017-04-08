@@ -4,6 +4,7 @@ const router = require('express').Router();
 const parser = require('body-parser');
 
 const EntriesApi = require('../api/EntriesApi');
+const middleware = require('../../system/helpers/Middleware');
 
 const entries = new EntriesApi();
 

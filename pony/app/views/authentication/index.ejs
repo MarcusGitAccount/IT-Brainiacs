@@ -22,7 +22,7 @@
           <h1>Welcome user !</h1>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
           <% if (typeof error === 'object' && error)  { %>
-            <div style="margin-top: 25px; font-size: 14px; padding: 1em 0 !; color: red;">
+            <div class="error-div" style="color: red;">
               <%= error.title %>
             </div>
           <% } %>
@@ -35,7 +35,7 @@
             <i class="fa fa-sign-in" aria-hidden="true"></i>
           </div>
           <div class="panel-body">
-            <form action="/home/login" method="post" id="user-login" class="form-horizontal">
+            <form action="/authentication/login" method="post" id="user-login" class="form-horizontal">
               <div class="form-group">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <label for="user_login_name" class="col-md-2 control-label input-margin nope">Name</label>
@@ -61,7 +61,7 @@
             <i class="fa fa-pencil" aria-hidden="true"></i>
           </div>
           <div class="panel-body">
-            <form action="/home/register" method="post" id="user-signup" class="form-horizontal">
+            <form action="/authentication/register" method="post" id="user-signup" class="form-horizontal">
               <div class="form-group">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <label for="user_signup_name" class="col-md-2 control-label input-margin nope">Name</label>
@@ -88,9 +88,7 @@
           </div>
         </div>
       </div>
-      <div class="row"></div>
     </div>
-    <script src="/public/js/validate.js"></script>
-    <script src="/public/js/functions.js"></script>
+    <script src="/assets/js/functions.js"></script>
   </body>
 </html>

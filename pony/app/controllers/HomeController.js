@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const middleware = require('../../system/helpers/Middleware');
 
 class HomeController {
   index(request, response) {

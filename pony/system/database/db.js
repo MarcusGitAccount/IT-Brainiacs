@@ -6,7 +6,7 @@ let instance;
 
 class DataBase {
   constructor(config) {
-    console.log("construct");
+    console.log("Connected to mysql");
     this.connectionPool = mysql.createPool(config);
   }
 

@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="Login page" content="Login/Sign up forms">
+    <meta name="viewport" content="width=device-width" initial-scale="1.0">
+    <link href="/assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/assets/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/auth.css">
+    <link rel="stylesheet" href="/assets/font-awesome/css/font-awesome.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Ubuntu" rel="stylesheet">
+    <title><%= model.title %></title>
+  </head>
+</head>
+<body>
+  <div class="container-column ">
+    <h1>Welcome to our site, <%= model.name %> !</h1>
+    <p>Your registration was indeed succesful. Now you can follow the link below to login</p>
+    <a href="/authentication" class="anchor">Back to login page</a>
+  </div> 
+</body>
+</html>
