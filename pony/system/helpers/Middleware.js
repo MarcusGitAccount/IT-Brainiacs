@@ -22,6 +22,7 @@ module.exports = {
         }
         
         if (result) {
+          delete result.password;
           request.user = result;
           request.session.user = result;
           response.locals.user = result;
@@ -33,8 +34,7 @@ module.exports = {
     else next();
   },
   requireLogin: function(request, response, next) {
-    console.log(request.session)
     if (!request.user) response.redirect('/authentication');
     else next();
   }
-}
+};

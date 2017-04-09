@@ -94,3 +94,9 @@ body {
 label {
   color: #fff;
 }
+
+.link:hover {
+  color: white !important;
+  transform: scale(1.25);
+  transition: .2s all ease-in-out;
+}

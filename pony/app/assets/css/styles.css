@@ -505,6 +505,14 @@ table tr {
   font-size: 24px;
 }
 
+.container-column > *:not(h1) {
+  font-size: 20px;
+}
+
+.container-column > h1, .container-column > p {
+  text-align: center;
+}
+
 .btn-ok:hover {
   cursor: pointer;
 }

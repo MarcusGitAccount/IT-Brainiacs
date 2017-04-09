@@ -39,6 +39,7 @@ app.get('/', (request, response) => {
       }
       
       if (result) {
+        delete result.password;
         response.locals.user = result;
         response.redirect('/home');
       }
