@@ -12,7 +12,7 @@ const _router = Symbol('_router');
 class BaseRouter {
   constructor() {
     this[_router] = express.Router();
-    this[_router].use(parser.urlencoded({ 'extended': true, limit: '15mb'}));
+    this[_router].use(parser.urlencoded({ extended: true, limit: '15mb'}));
     this[_router].use(parser.json({limit: '15mb'}));
   }
   
