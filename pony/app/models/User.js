@@ -4,7 +4,7 @@
 
 const mongoose = require('mongoose');
 
-const Connection = require('../../system/helpers/MongoConnection')();
+const Connection = require('../../system/database/MongoConnection')();
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;

@@ -13,7 +13,7 @@ module.exports = {
     httpOnly: true,
     ephemeral: true
   },
-  checkSession: function(request, response, next) {
+  checkSession: (request, response, next) => {
     console.log(request.session, 'line 9');
     if (request.session && request.session.user) {
       user.selectUser({name: request.session.user.name, password: request.session.user.password}, (err, result) => {
@@ -33,7 +33,7 @@ module.exports = {
     }
     else next();
   },
-  requireLogin: function(request, response, next) {
+  requireLogin: (request, response, next) =>  {
     if (!request.user) response.redirect('/authentication');
     else next();
   }

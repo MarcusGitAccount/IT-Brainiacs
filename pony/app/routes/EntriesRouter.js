@@ -1,17 +1,11 @@
 'use strict';
 
-const router = require('express').Router();
-const parser = require('body-parser');
-
 const EntriesApi = require('../api/EntriesApi');
 const middleware = require('../../system/helpers/Middleware');
-
+const router = require('../../system/helpers/BaseRouter').apiRouter;
 const entries = new EntriesApi();
 
 module.exports = (function route() {
-  router.use(parser.urlencoded({ 'extended': true, limit: '15mb'}));
-  router.use(parser.json({limit: '15mb'}));
-  
   router.get('/page', entries.page);
   router.get('/trip/:id', entries.trip);
   router.get('/trip/:id/size', entries.tripSize);

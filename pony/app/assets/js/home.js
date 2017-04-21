@@ -116,7 +116,7 @@ const pageButtons = document.querySelectorAll('ul.pager>li>a');
 const pageCounters = document.querySelectorAll('.list-span');
 const filterButton = document.querySelector('#filter');
 const undoFilterButton = document.querySelector('#undo-filter');
-const filterTextBox = document.querySelector('#trip-id')
+const filterTextBox = document.querySelector('#trip-id');
 const searchByIdTextBox = document.querySelector('#search-page-textbox');
 const searchByIdButton = document.querySelector('#search-page');
 const tableContent = document.querySelector('.table-content > table');
@@ -231,13 +231,15 @@ class PanelLogic {
 let routePanelLogic = new PanelLogic();
 
 let pagination = {
-  PAGE_SIZE: 25,
+  PAGE_SIZE: 5,
   currentPage: 1,
   minPage: 1,
   maxPage: null,
   size: null,
-  trip_id: null
-}
+  trip_id: null,
+  trip_data: {},
+  normal_data: {}
+};
 
 let markers = [];
 let map;
@@ -497,7 +499,17 @@ function populateTable(data) {
   while(tableContent.childElementCount > 1)
     tableContent.removeChild(tableContent.lastChild);
   data.forEach((row, index) => {
-    tableContent.innerHTML += `<tr><td>${row.id + 1}</td><td>${row.car_qnr}</td><td>${row.trip_id}</td><td>${row.speed}</td><td>${row.rate}</td><td>${row.lat}</td><td>${row.lon}</td><td>${row.timestamp}</td></tr>`;
+    tableContent.innerHTML += `
+    <tr>
+      <td><span class="responsive-table-label">Id: </span>${row.id + 1}</td>
+      <td><span class="responsive-table-label">Car qnr: </span>${row.car_qnr}</td>
+      <td><span class="responsive-table-label">Trip id: </span>${row.trip_id}</td>
+      <td><span class="responsive-table-label">Speed: </span>${row.speed}</td>
+      <td><span class="responsive-table-label">Rate: </span>${row.rate}</td>
+      <td><span class="responsive-table-label">Latitude: </span>${row.lat}</td>
+      <td><span class="responsive-table-label">Longitude: </span>${row.lon}</td>
+      <td><span class="responsive-table-label">Timestamp: </span>${row.timestamp}</td>
+    </tr>`;
   });
 }
 
@@ -534,14 +546,37 @@ function initList(trip_id = null) {
 
 function getPage(page, trip_id = null) {
   const url = trip_id === null ? `/api/entries/page` : `/api/entries/trip/${trip_id}`;
+  let usedData = null;
   
-  if (page < pagination.minPage || page > pagination.maxPage) {
+  if (page < pagination.minPage || page > pagination.maxPage)
+    return ;
+  
+  if (trip_id) {
+    if (pagination.trip_data.hasOwnProperty(trip_id)) {
+      if (pagination.trip_data[trip_id][page])
+        usedData = pagination.trip_data[trip_id][page];
+    }
+    else
+      pagination.trip_data[trip_id] = {};
+  }
+  else {
+    if (pagination.normal_data[page])
+      usedData = pagination.normal_data[page];
+  }
+  
+  if (usedData) {
+    populateTable(usedData);
+    pageCounters[0].innerHTML = pagination.currentPage = page;
     return ;
   }
-    
+  
   getJSON(url + `?limit=${pagination.PAGE_SIZE}&offset=${(page - 1) * pagination.PAGE_SIZE}`, (error, data) => {
     if (data !== undefined) {
-      //document.querySelector('pre').innerHTML = JSON.stringify(data, null, 2);
+      if (trip_id)
+        pagination.trip_data[trip_id][page] = data;
+      else
+        pagination.normal_data[page] = data;
+        
       populateTable(data);
       pageCounters[0].innerHTML = pagination.currentPage = page;
     }
@@ -629,7 +664,7 @@ function polygonClick(e) {
   const position = {
     x: e.ya.x + window.scrollX,
     y: e.ya.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
-  }
+  };
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
   if (e.ya.x + followerLimits.width > mapLimits.right)
@@ -852,7 +887,7 @@ function drawCharts(error, result) {
 
 function drawChartByDay(day) {
   const chart = new google.visualization.LineChart(document.querySelector('#day-by-day-chart'));
-  let data = new google.visualization.DataTable();
+  const data = new google.visualization.DataTable();
 
   let options = {
     hAxis: {
@@ -868,13 +903,12 @@ function drawChartByDay(day) {
   data.addColumn('string', 'Day time');
   data.addColumn('number', 'Time');
   data.addRows([
-    ['morning', mapEvents.chartData[chartPagination.dates[day]].morning.time],
-    ['noon', mapEvents.chartData[chartPagination.dates[day]].noon.time],
-    ['evening', mapEvents.chartData[chartPagination.dates[day]].evening.time],
-    ['night', mapEvents.chartData[chartPagination.dates[day]].night.time]
+    ['M', mapEvents.chartData[chartPagination.dates[day]].morning.time],
+    ['N', mapEvents.chartData[chartPagination.dates[day]].noon.time],
+    ['E', mapEvents.chartData[chartPagination.dates[day]].evening.time],
+    ['Ni', mapEvents.chartData[chartPagination.dates[day]].night.time]
   ]);
   routePanelLogic.charts.querySelector('span#time').innerHTML = `${chartPagination.dates[day]}`;
-
   chart.draw(data, options);
 }
 
@@ -883,28 +917,30 @@ function drawChart(element, data, options) {
   chart.draw(data, options);
 }
 
-filterButton.addEventListener('click', (e) => {
-  if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
-    initList(parseInt(filterTextBox.value));
+(function _init() {
+  filterButton.addEventListener('click', (e) => {
+    if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
+      initList(parseInt(filterTextBox.value));
+    
+    e.preventDefault();
+  });
   
-  e.preventDefault()
-});
-
-undoFilterButton.addEventListener('click', (e) => {
+  undoFilterButton.addEventListener('click', (e) => {
   if (pagination.trip_id !== null) {
     clearMarkers(markers);
     initList();
   }
-});
-
-pageButtons.forEach(button => button.addEventListener('click', pageButtonClick));
-
-searchByIdButton.addEventListener('click', (e) => {
+  });
+  
+  pageButtons.forEach(button => button.addEventListener('click', pageButtonClick));
+  
+  searchByIdButton.addEventListener('click', (e) => {
   const page = parseInt(searchByIdTextBox.value);
   
   if (page)
     getPage(page, pagination.trip_id);
-});
-
-initList();
-initCharts();
+  });
+  
+  initList();
+  initCharts();
+})();

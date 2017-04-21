@@ -50,10 +50,9 @@ class AuthenticationController {
        if (identical == true) {
          response.locals.csrfToken = token;
          request.session.user = result;
-         console.log(request.session)
          response.redirect('/home');
-         console.log('go home, boy')
-         return ;
+         
+         return console.log(request.session);
        }
        
        response.locals.csrfToken = token;
@@ -118,12 +117,12 @@ class AuthenticationController {
             
             response.render(path.join('authentication', 'succes.ejs'), {
               model: {
-                'title': 'Succesful registration',
-                'name':  request.body.user_signup_name
+                title: 'Succesful registration',
+                name:  request.body.user_signup_name
             }});
-          })
+          });
         });
-      })
+      });
     }
   }
   

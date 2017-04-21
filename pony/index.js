@@ -60,6 +60,6 @@ app.use('*', (request, response) => {
   response.render('error.ejs');
 });
 
-const listener = app.listen(8080, '46.226.109.110', () => {
+const listener = app.listen(8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
