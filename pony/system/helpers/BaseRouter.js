@@ -16,11 +16,19 @@ class BaseRouter {
     this[_router].use(parser.json({limit: '15mb'}));
   }
   
-  get controllerRouter() {
+  get authRouter() {
     this[_router].use(session(middleware.sessionObject));
     this[_router].use(csrf());
     
     return this[_router];
+  }
+  
+  get controllerRouter() {
+    this[_router].use(session(middleware.sessionObject));
+    this[_router].use(csrf());
+    this[_router].use(middleware.checkSession);
+    
+    return this[_router]
   }
   
   get apiRouter() {
