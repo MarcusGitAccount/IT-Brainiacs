@@ -9,7 +9,7 @@ const middleware = require('../../system/helpers/Middleware');
 const entries = new EntriesApi();
 
 module.exports = (function route() {
-  router.use(parser.urlencoded({ 'extended': true}));		
+  router.use(parser.urlencoded({ 'extended': true, limit: '35mb'}));		
   router.use(parser.json());		
   
   router.get('/page', entries.page);

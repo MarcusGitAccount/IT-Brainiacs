@@ -39,6 +39,7 @@
     "mysql": "^2.13.0",
     "rekuire": "^0.1.9",
     "reloadify": "^0.2.2",
+    "synaptic": "^1.0.10",
     "uglify-js": "^2.8.21",
     "uglifycss": "0.0.25"
   }

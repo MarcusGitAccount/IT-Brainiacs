@@ -19,7 +19,7 @@ router.use(parser.urlencoded({ 'extended': true}));
   
   router.get('/', authentication.index);
   router.post('/login', authentication.login);
-  router.post('/register', authentication.register);
+  //router.post('/register', authentication.register);
   router.get('/logout', authentication.logout);
   
   return router;

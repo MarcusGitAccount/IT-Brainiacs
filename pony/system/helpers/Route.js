@@ -9,6 +9,7 @@ function resultObject() {
   this.speed = 0;
   this.time = 0;
   this.cars = 0;
+  this.valid = true;
 }
 
 function singleDayObject() {
@@ -17,6 +18,7 @@ function singleDayObject() {
   this.evening = new resultObject();
   this.night = new resultObject();
   this.overall = new resultObject();
+  this.overall.valid = true;
 }
 
 class Route {
@@ -40,7 +42,7 @@ class Route {
       return 'morning';
     if (hour >= 12 && hour < 18)
       return 'noon';
-    if (hour >= 18 && hour < 22)
+    if (hour >= 18 && hour < 24)
       return 'evening';
     return 'night';
   }
@@ -167,18 +169,20 @@ class Route {
         
         if (this.resultBetweenDates[date][dayPart].cars && this.resultBetweenDates[date][dayPart].speed && this.resultBetweenDates[date][dayPart].time) {
           this.resultBetweenDates[date]['overall'].speed += this.resultBetweenDates[date][dayPart].speed;
-          this.resultBetweenDates[date]['overall'].cars += this.resultBetweenDates[date][dayPart].cars
+          this.resultBetweenDates[date]['overall'].cars += this.resultBetweenDates[date][dayPart].cars;
           this.resultBetweenDates[date]['overall'].time += this.resultBetweenDates[date][dayPart].time;
           records++;
         }
         
         this.resultBetweenDates[date][dayPart].speed = Math.round(this.resultBetweenDates[date][dayPart].speed * 100) / 100;
         this.resultBetweenDates[date][dayPart].time = Math.round(this.resultBetweenDates[date][dayPart].time * 100) / 100;
+        if (!this.resultBetweenDates[date][dayPart].speed)
+          this.resultBetweenDates[date][dayPart].valid = this.resultBetweenDates[date]['overall'].valid = false;
       });
       
-      this.resultBetweenDates[date]['overall'].speed = Math.round((this.resultBetweenDates[date]['overall'].speed / records) * 100) / 100;//.toFixed(2);
+      this.resultBetweenDates[date]['overall'].speed = Math.round((this.resultBetweenDates[date]['overall'].speed / records) * 100) / 100;
       this.resultBetweenDates[date]['overall'].cars = Math.round(this.resultBetweenDates[date]['overall'].cars / records);
-      this.resultBetweenDates[date]['overall'].time = Math.round(this.resultBetweenDates[date]['overall'].time / records * 100) / 100;//.toFixed(2);
+      this.resultBetweenDates[date]['overall'].time = Math.round(this.resultBetweenDates[date]['overall'].time / records * 100) / 100;
       this.resultBetweenDates[date]['overall'].records = records;
     });
 

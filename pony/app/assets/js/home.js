@@ -1,3 +1,6 @@
+
+// import units from 'constants';
+
 const mapStyles = {
   default: null,
   retro: [
@@ -311,7 +314,7 @@ let mapEvents = {
       if (XHR.readyState === 4 && XHR.status === 200) {
         const response = JSON.parse(XHR.responseText);
         
-        callback(null, response);
+        callback(null, response, dates.start, dates.end);
         return ;
       }
     }
@@ -415,15 +418,14 @@ function deleteWaypointClick(e) {
 
 function getJSON(url, callback) {
   const ajax = new XMLHttpRequest();
-
+  
   ajax.onreadystatechange = () => {
     if (ajax.readyState === 4 && ajax.status === 200) {
       callback(null, JSON.parse(ajax.responseText));
       return ;
     }
-    callback(new Error('Error while trying to get data from url'));
   }
-
+  
   ajax.open('GET', url, true);
   ajax.send(null);
 }
@@ -662,14 +664,14 @@ function polygonRightClick(e) {
 
 function polygonClick(e) {
   const position = {
-    x: e.ya.x + window.scrollX,
-    y: e.ya.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
+    x: e.Ba.x + window.scrollX,
+    y: e.Ba.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
   };
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.ya.x + followerLimits.width > mapLimits.right)
+  if (e.Ba.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
-  if (e.ya.y + followerLimits.height > mapLimits.bottom)
+  if (e.Ba.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);
@@ -843,7 +845,7 @@ function getRoute(start, end, days, waypoints, betweendates = false) {
   });
 }
 
-function drawCharts(error, result) {
+function drawCharts(error, result, start, end) {
   console.log(JSON.stringify(result, null, 2));
   
   let data = new google.visualization.DataTable();
@@ -883,6 +885,7 @@ function drawCharts(error, result) {
   
   drawChart(document.querySelector('#overall-chart'), data, options);
   drawChartByDay(1);
+  fetchWeatherApi(start, end, result, processDataForLearning);
 }
 
 function drawChartByDay(day) {
@@ -917,6 +920,148 @@ function drawChart(element, data, options) {
   chart.draw(data, options);
 }
 
+function limits(low, high) {
+  this.low  = low;
+  this.high = high;
+  
+  this.checkLimit= (value) => {
+    const nbr = parseFloat(value);
+    
+    if (nbr >= this.low && nbr <= this.high)
+      return 1;
+    return 0;
+  };
+}
+
+function processDataForLearning(error, weather, traffic, callback) {
+  if (error) {
+    console.log(error);
+    return ;
+  }
+  
+  const objectKeys = Object.keys(traffic);
+  const units = new Units();
+  const KEY = 'e6c45ad7e2a1491f9be95818170904';
+  const NO_DAYS = 7;
+  
+  const url = `http://api.worldweatheronline.com/premium/v1/weather.ashx?` + 
+              `key=${KEY}&q=Cluj-Napoca&format=json&num_of_days=${NO_DAYS}&tp=6`;
+  
+  const input = [[], [], [], []];
+  const output = [[], [], [], []];
+  
+  let index = 0;
+  let day = 0;
+  
+  objectKeys.splice(0, 2);
+  
+  console.log(objectKeys, weather);
+  
+  objectKeys.forEach(key => {
+    index = 0;
+    
+    ['morning', 'noon', 'evening', 'night'].forEach(dayPart => {
+      if (traffic[key][dayPart].valid) {
+        const current = weather.data.weather[day].hourly[index];
+        
+        output[index].push(traffic[key][dayPart].speed);
+        input[index].push([
+          units.temperature.checkLimit(current[units.aliases.temperature]),
+          units.windspeed.checkLimit(current[units.aliases.windspeed]),
+          units.pp.checkLimit(current[units.aliases.pp]),
+          
+          units.visibility.checkLimit(current[units.aliases.visibility]),
+          units.pressure.checkLimit(current[units.aliases.pressure]),
+          units.clouds.checkLimit(current[units.aliases.clouds]),
+          
+          units.snow.checkLimit(weather.data.weather[day][units.aliases.snow])
+        ]);
+      }
+      else {
+        output[index].push(null);
+        input[index].push(null);
+      }
+      
+      index++;
+    });
+    
+    day++;
+  });
+  
+  getJSON(url, (error, data) => {
+    if (!error) {
+      const tests = [[], [], [], []];
+      
+      for (index = 0; index < NO_DAYS; index++) {
+        
+        for (let j = 0; j < 4; j++) {
+          const current = data.data.weather[day].hourly[j];
+          
+          tests[j].push([
+            units.temperature.checkLimit(current[units.aliases.temperature]),
+            units.windspeed.checkLimit(current[units.aliases.windspeed]),
+            units.pp.checkLimit(current[units.aliases.pp]),
+            
+            units.visibility.checkLimit(current[units.aliases.visibility]),
+            units.pressure.checkLimit(current[units.aliases.pressure]),
+            units.clouds.checkLimit(current[units.aliases.clouds]),
+            
+            units.snow.checkLimit(data.data.weather[day][units.aliases.snow])
+          ]);
+        }
+      }
+      
+      console.log(tests);
+    }
+  });
+  
+  console.log(input);
+  console.log(output);
+}
+
+
+function Units() {
+  this.temperature = new limits(5, 25); // °C
+  this.windspeed = new limits(0, 5); // km / h
+  this.pp = new limits(0, 5); // mm
+  this.visibility = new limits(0.25, 10);
+  this.pressure = new limits(1010, 1020); // milibars 1014 mb ~ 760 mmcolHg
+  this.clouds = new limits(0, 50); // cloud coverage percentage
+  this.snow = new limits(0, 0.1); // cm
+  
+  this.aliases= {
+    temperature: 'tempC',
+    visibility : 'visibikity',
+    pp         : 'precipMM',
+    pressure   : 'pressure',
+    clouds     : 'cloudcover',
+    windspeed  : 'windspeedKmph',
+    snow       : 'totalSnow_cm'
+  };
+}
+
+function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callback) {
+  const KEY    = 'e6c45ad7e2a1491f9be95818170904';
+  const TP     = 6;
+  const CITY   = 'Cluj-Napoca';
+  const FORMAT = 'json';
+  
+  const url = `http://api.worldweatheronline.com/premium/v1/past-weather.ashx?` + 
+              `key=${KEY}&q=${CITY}&format=${FORMAT}&date=${start}&enddate=${end}&tp=${TP}`;
+  
+  
+  
+  getJSON(url, (error, data) => {
+    if (!error) {
+      callback(null, data, result);
+      return ;
+    }
+    
+    callback(new Error('error while getting past weather data'));
+  });
+  
+}
+
 (function _init() {
   filterButton.addEventListener('click', (e) => {
     if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
@@ -935,10 +1080,10 @@ function drawChart(element, data, options) {
   pageButtons.forEach(button => button.addEventListener('click', pageButtonClick));
   
   searchByIdButton.addEventListener('click', (e) => {
-  const page = parseInt(searchByIdTextBox.value);
-  
-  if (page)
-    getPage(page, pagination.trip_id);
+    const page = parseInt(searchByIdTextBox.value);
+    
+    if (page)
+      getPage(page, pagination.trip_id);
   });
   
   initList();

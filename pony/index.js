@@ -10,6 +10,7 @@ const entriesRoute = require('./app/routes/EntriesRouter')();
 const homeRoute = require('./app/routes/HomeRouter')();
 const authenticationRoute = require('./app/routes/AuthenticationRouter')();
 const middleware = require('./system/helpers/Middleware');
+//const learn = require('./system/learning/Learning')();
 
 const User = require('./app/models/User');
 const user = new User();
@@ -59,7 +60,11 @@ app.use('*', (request, response) => {
   response.status(404);
   response.render('error.ejs');
 });
-
+/*
+console.log("Sit Neuron: " + learn[0] * 100 + "%");
+console.log("Run Neuron: " + learn[1] * 100 + "%");
+console.log("Jump Neuron: " + learn[2] * 100 + "%");
+*/
 const listener = app.listen(8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
