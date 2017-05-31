@@ -964,8 +964,9 @@ function processDataForLearning(error, weather, traffic, callback) {
       if (traffic[key][dayPart].valid) {
         const current = weather.data.weather[day].hourly[index];
         
-        output[index].push(traffic[key][dayPart].speed);
-        input[index].push([
+        output[index].push(Math.round(traffic[key][dayPart].speed));
+        
+        const arr = [
           units.temperature.checkLimit(current[units.aliases.temperature]),
           units.windspeed.checkLimit(current[units.aliases.windspeed]),
           units.pp.checkLimit(current[units.aliases.pp]),
@@ -974,8 +975,14 @@ function processDataForLearning(error, weather, traffic, callback) {
           units.pressure.checkLimit(current[units.aliases.pressure]),
           units.clouds.checkLimit(current[units.aliases.clouds]),
           
-          units.snow.checkLimit(weather.data.weather[day][units.aliases.snow])
-        ]);
+          units.snow.checkLimit(weather.data.weather[day][units.aliases.snow]),
+          
+          0, 0, 0, 0
+        ];
+        
+        arr[11 - 4 + index] = 1;
+        console.log(arr);
+        input[index].push(arr);
       }
       else {
         output[index].push(null);
@@ -997,7 +1004,7 @@ function processDataForLearning(error, weather, traffic, callback) {
         for (let j = 0; j < 4; j++) {
           const current = data.data.weather[day].hourly[j];
           
-          tests[j].push([
+          const arr = [
             units.temperature.checkLimit(current[units.aliases.temperature]),
             units.windspeed.checkLimit(current[units.aliases.windspeed]),
             units.pp.checkLimit(current[units.aliases.pp]),
@@ -1006,19 +1013,61 @@ function processDataForLearning(error, weather, traffic, callback) {
             units.pressure.checkLimit(current[units.aliases.pressure]),
             units.clouds.checkLimit(current[units.aliases.clouds]),
             
-            units.snow.checkLimit(data.data.weather[day][units.aliases.snow])
-          ]);
+            units.snow.checkLimit(data.data.weather[day][units.aliases.snow]),
+            
+            0, 0, 0, 0
+          ];
+          
+          arr[11 - 4 + j] = 1;
+          tests[j].push(arr);
+          
         }
       }
-      
       console.log(tests);
+      callback(null, input, output, tests, printLearningData);
+      return ;
     }
+    
+    callback(error);
   });
-  
-  console.log(input);
-  console.log(output);
 }
 
+function printLearningData(error, data) {
+  console.log(data);
+}
+
+function orderLearningData(error, input, output, tests, callback) {
+  if (error)
+    return ;
+  
+  const trainingSet = [];
+  
+  for (let i = 0; i < input.length; i++) {
+    for (let j = 0; j < input[i].length; j++) {
+      if (input[i][j] !== null)
+        trainingSet.push({
+          input: input[i][j],
+          output: output[i][j]
+        });
+    }
+  }
+  
+  console.log(JSON.stringify(trainingSet));
+  const XHR = new XMLHttpRequest();
+    
+  XHR.open('POST', '/api/entries/learn', true);
+  XHR.setRequestHeader('Content-type', 'application/json');
+  XHR.onreadystatechange = () => {
+    if (XHR.readyState === 4 && XHR.status === 200) {
+      const response = JSON.parse(XHR.responseText);
+      
+      callback(null, response);
+      return ;
+    }
+  };
+  
+  XHR.send(JSON.stringify({trainingSet, tests}));
+}
 
 function Units() {
   this.temperature = new limits(5, 25); // °C
@@ -1048,12 +1097,10 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
   
   const url = `http://api.worldweatheronline.com/premium/v1/past-weather.ashx?` + 
               `key=${KEY}&q=${CITY}&format=${FORMAT}&date=${start}&enddate=${end}&tp=${TP}`;
-  
-  
-  
+
   getJSON(url, (error, data) => {
     if (!error) {
-      callback(null, data, result);
+      callback(null, data, result, orderLearningData);
       return ;
     }
     
@@ -1089,3 +1136,43 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
   initList();
   initCharts();
 })();
+
+getJSON('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=e6c45ad7e2a1491f9be95818170904&q=Cluj-Napoca&format=json&date=2016-11-05&enddate=2016-11-30&tp=1', (error ,response) => {
+    const hourly = [];
+    
+    console.log(response.data.weather.length)
+    response.data.weather.forEach(day => {
+      console.log('*', day.hourly.length);
+      day.hourly.forEach(part => {
+        console.log('h')
+        let dayObject = {};
+        
+        if (part.time.length === 3)
+          part.time = `0${part.time}`;
+        else if (part.time.length === 1)
+          part.time = `000${part.time}`;
+        
+        
+        dayObject = {
+          date: `${day.date} ${part.time.substr(0, 2)}:${part.time.substr(2, 2)}`,
+          maxtempC: day.maxtempC,
+          mintempC: day.mintempC,
+          totalSnow_cm: day.totalSnow_cm,
+          sunHour: day.sunHour,
+          time: part.time,
+          tempC: part.tempC,
+          windspeedKmph: part.windspeedKmph,
+          weatherCode: part.weatherCode,
+          precipMM: part.precipMM,
+          humidity: part.humidity,
+          visibility: part.visibility,
+          pressure: part.pressure,
+          cloudcover: part.cloudcover,
+          HeatIndexC: part.HeatIndexC
+        };
+        hourly.push(dayObject);
+      });
+    });
+    
+    console.log(hourly);
+});

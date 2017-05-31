@@ -7,15 +7,18 @@ const session = require('client-sessions');
 
 const adminRoute = require('./app/routes/AdministratorsRouter')();
 const entriesRoute = require('./app/routes/EntriesRouter')();
+//const learnRoute = require('./app/routes/LearningRoute')();
 const homeRoute = require('./app/routes/HomeRouter')();
 const authenticationRoute = require('./app/routes/AuthenticationRouter')();
 const middleware = require('./system/helpers/Middleware');
-//const learn = require('./system/learning/Learning')();
+
 
 const User = require('./app/models/User');
 const user = new User();
 
 const app = express();
+
+//const weatherData = require('./system/helpers/WeatherData')(path.join('../weather.csv'));
 
 app.set('case sensivitive routing', false);
 app.set('view engine', 'ejs');
@@ -60,11 +63,9 @@ app.use('*', (request, response) => {
   response.status(404);
   response.render('error.ejs');
 });
-/*
-console.log("Sit Neuron: " + learn[0] * 100 + "%");
-console.log("Run Neuron: " + learn[1] * 100 + "%");
-console.log("Jump Neuron: " + learn[2] * 100 + "%");
-*/
+
 const listener = app.listen(8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
+
+console.log(__dirname)

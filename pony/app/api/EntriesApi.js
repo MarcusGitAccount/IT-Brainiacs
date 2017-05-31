@@ -5,6 +5,8 @@ const Entries = require('../models/Entries');
 const Route = require('../../system/helpers/Route');
 
 const entries = new Entries();
+const Learning = require('../../system/learning/Learning');
+
 
 class EntriesApi {
   page(request, response) {
@@ -92,6 +94,36 @@ class EntriesApi {
       //response.status(200).json(result);
       response.status(200).json(route.getResultFromRouteBetweenDates(result));
     });
+  }
+  
+  learn(request, response) {
+    const learner = new Learning();
+    const trainingSet = request.body.trainingSet;
+    const tests       = request.body.tests;
+    const results     = {
+      data: tests,
+      result: []
+    };
+    
+    //console.log('post request received');
+    //console.log(trainingSet[0].input.length)
+    
+    trainingSet.map(i => i.output = learner.createOutputSpeedArray(i.output));
+    learner.train(trainingSet, trainingSet.length);    
+    
+    for (let i = 0; i < tests.length; i++) {
+      results.result.push([]);
+      for (let j = 0; j < tests[i].length; j++) {
+        //console.log(tests[i][j]);
+        results.result[i].push(learner.testData(tests[i][j]));
+      }
+    }
+    
+    //console.log(results.result);
+    
+    response.status(200).json(results);
+    
+    
   }
 }
 

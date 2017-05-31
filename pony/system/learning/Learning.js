@@ -8,18 +8,11 @@ const Network = synaptic.Network;
 const Trainer = synaptic.Trainer;
 
 const input = new Layer(constants.INPUT_LAYERS);
-const hidden = new Layer(constants.OUTPUT_LAYERS * constants.INPUT_LAYERS);
+const hidden = new Layer(constants.HIDDEN_LAYERS);
 const output = new Layer(constants.OUTPUT_LAYERS);
 
 const _testData = Symbol('_testData');
-/*
-const trainingSet = [
-  {input: [1, 0, 1, 1, 1, 1], output: [0]},
-  {input: [0, 1], output: [1]},
-  {input: [1, 1], output: [1]},
-  {input: [0, 0], output: [1]}
-];
-*/
+
 input.project(hidden);
 hidden.project(output);
 
@@ -32,16 +25,16 @@ const network = new Network({
 const trainer = new Trainer(network);
 
 class Learning {
-  constructor(trainingSet) {
+  train(trainingSet, iterations) {
     this.trainingSet = trainingSet;
     this.trainingObject = {
       rate: constants.LEARNING_RATE,
-      iterations: trainingSet.length,
+      iterations: 28,
       error: 0.1,
-      shuffle: false,
+      shuffle: true,
       log: 1,
       cost: Trainer.cost.CROSS_ENTROPY
-    }
+    };
     trainer.train(this.trainingSet, this.trainingObject);
   }
   
@@ -54,13 +47,15 @@ class Learning {
   }
   
   [_testData](inputData) {
-    return input.activate(inputData);
+    input.activate(inputData);
+    
+    return output.activate();
   }
   
   testData(inputData) {
-    const result = this[_testData](inputData).map(item => item * 100);
+    const result = this[_testData](inputData).map(item => Math.round(item * 100));
     
-    return result.reduce((a, b) => {return (a > b ? a : b);}, -1);
+    return result;//.reduce((a, b) => {return (a > b ? a : b);}, -1);
   }
 }
 

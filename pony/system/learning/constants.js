@@ -1,5 +1,6 @@
 module.exports = {
     LEARNING_RATE: .2,
-    INPUT_LAYERS: 6,
-    OUTPUT_LAYERS: 101
+    INPUT_LAYERS: 11,
+    HIDDEN_LAYERS: 500,
+    OUTPUT_LAYERS: 100
 };
