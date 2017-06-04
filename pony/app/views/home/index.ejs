@@ -12,15 +12,20 @@
   <title><%= model.title %></title>
 </head>
 <body>
-  <%- include ../partials/confirmation.ejs%>
+  <%- include ../partials/confirmation.ejs %>
   <%- include ../partials/navbar.ejs %>
   <div id="follower">
     <div class="data"></div>
     <div class="progress"></div>
   </div>
   <div class="container">
-    <div class="row">
-      <div id="map" class="col-md-12 col-sm-12"></div>
+    <div class="row" id="top-div">
+      <div id="map" class="col-lg-9 col-md-8 col-sm-12"></div>
+      <div id="state-buttons" class="col-lg-3 col-md-4 col-sm-12">
+        <button id="restore" type="button" class="btn btn-brown">Default view</button>
+        <button id="clear" type="button" class="btn btn-brown">Clear polygons</button>
+        <span id="center" class="ubuntu">Currently centered on: <span id="map-center" style="color: #fb8c00;">processing location</span></span>
+      </div>
     </div>
     <div class="row">
       <div class="row">
@@ -59,7 +64,7 @@
                 <label for="days">Enter number of days:&nbsp</label>
                 <div class="custom-number-input" id="days">
                   <span data-step="1" data-increment="-1"><i class="fa fa-minus" aria-hidden="true"></i></span>
-                  <input class="custom-number-input-textbox" type="text" value="142" data-max="1000" data-min="0" readonly id="route-days-ago">
+                  <input class="custom-number-input-textbox" type="text" value="30" data-max="1000" data-min="0" readonly id="route-days-ago">
                   <span data-step="1" data-increment="1"><i class="fa fa-plus" aria-hidden="true"></i></span>
                 </div>
                 <input type="button" value="Submit route" class="btn btn-brown" id="submit-route-btn">
@@ -117,8 +122,8 @@
           <div class="panel-footer">
             <nav aria-label="Changes navigation">
               <ul class="pager">
-                <li id="prev"><a class="btn btn-brown" data-min="1" data-increment="-1" title="Previous page">Previous</a></li>
-                <li id="next"><a class="btn btn-brown" data-max="" data-increment="1" title="Next page">Next</a></li>
+                <li id="prev"><a style="background:#694a3e;" class="btn btn-brown" data-min="1" data-increment="-1" title="Previous page">Previous</a></li>
+                <li id="next"><a style="background:#694a3e;" class="btn btn-brown" data-max="" data-increment="1" title="Next page">Next</a></li>
               </ul>
             </nav>
             <div class="page-count">

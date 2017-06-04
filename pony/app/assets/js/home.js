@@ -114,7 +114,7 @@ const mapStyles = {
     }
   ],
   browns: [{"elementType":"geometry","stylers":[{"hue":"#ff4400"},{"saturation":-68},{"lightness":-4},{"gamma":0.72}]},{"featureType":"road","elementType":"labels.icon"},{"featureType":"landscape.man_made","elementType":"geometry","stylers":[{"hue":"#0077ff"},{"gamma":3.1}]},{"featureType":"water","stylers":[{"hue":"#00ccff"},{"gamma":0.44},{"saturation":-33}]},{"featureType":"poi.park","stylers":[{"hue":"#44ff00"},{"saturation":-23}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"hue":"#007fff"},{"gamma":0.77},{"saturation":65},{"lightness":99}]},{"featureType":"water","elementType":"labels.text.stroke","stylers":[{"gamma":0.11},{"weight":5.6},{"saturation":99},{"hue":"#0091ff"},{"lightness":-86}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"lightness":-48},{"hue":"#ff5e00"},{"gamma":1.2},{"saturation":-23}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"saturation":-64},{"hue":"#ff9100"},{"lightness":16},{"gamma":0.47},{"weight":2.7}]}]
-}
+};
 const pageButtons = document.querySelectorAll('ul.pager>li>a');
 const pageCounters = document.querySelectorAll('.list-span');
 const filterButton = document.querySelector('#filter');
@@ -125,8 +125,12 @@ const searchByIdButton = document.querySelector('#search-page');
 const tableContent = document.querySelector('.table-content > table');
 const mapDiv = document.querySelector('#map');
 const follower = document.querySelector('#follower');
-const mapLimits = document.querySelector('#map').getBoundingClientRect();
+let mapLimits = mapDiv.getBoundingClientRect();
 const followerLimits = follower.getBoundingClientRect();
+
+const restoreButton = document.querySelector('#restore');
+const clearButton = document.querySelector('#clear');
+const centerSpan = document.querySelector('#map-center');
 
 class PanelLogic {
   constructor() {
@@ -248,6 +252,7 @@ let markers = [];
 let map;
 
 let mapEvents = {
+  init: false,
   lastRouteRequest: null,
   lastFunction: null,
   trustedFunction: true,
@@ -263,13 +268,18 @@ let mapEvents = {
       follower.classList.remove('visible');
     }
   },
-  colors: ['#4a148c', '#2196f3', '#00bfa5', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064'],
+  colors: ['#4a148c', '#2196f3', '#00bfa5', '#3e2723', '#212121', '#880e4f', '#1a237e', '#006064', '#ff4081', '#aa00ff', '#283593'],
   index: 0,
   polygonArray: [[]],
   linesArray: [[]],
   polygonPointsArray: [[]],
   latLng: [[]],
   polygons: [],
+  mapSettings: {
+    center: {lat: 46.770439, lng: 23.591423},
+    zoom: 12,
+    scrollwheel: true
+  },
   getPointsInPolygon: (coords, callback) => {
     const polygon = coords;
     const XHR = new XMLHttpRequest();
@@ -327,6 +337,29 @@ let chartPagination = {
   MAX: null,
   current: 1,
   dates: []
+}
+
+function debounce(func, wait = 20, immediate = true){
+  let timeout;
+
+  return function(){
+    const context   = this;
+    const args      = arguments;
+    const later     = () => {
+      timeout = null;
+      
+      if (!immediate)
+        func.apply(context, args);
+    }
+    
+    const callnow   = immediate && !timeout;
+    
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    
+    if (callnow)
+      func.apply(context, args);
+  }
 }
 
 function chartButtonClick(e) {
@@ -431,12 +464,9 @@ function getJSON(url, callback) {
 }
 
 function initMap() {
-  map = new google.maps.Map(document.querySelector('#map'), {
-    center: {lat: 46.770439, lng: 23.591423},
-    zoom: 12,
-    scrollwheel: false
-  });
-
+  map = new google.maps.Map(mapDiv, mapEvents.mapSettings);
+  
+  mapEvents.init = true;
   map.setOptions({ styles: mapStyles.retro});
   addMapEvents(map);
   mapEvents.directionsService = new google.maps.DirectionsService();
@@ -462,9 +492,12 @@ function initMap() {
       mapEvents.getRouteData({routePoints: changed.routes[0].overview_path, steps: changed.routes[0].legs[0].steps}, coords, data.days, printRouteData);
     else
       mapEvents.getRouteDataBetweenDates({routePoints: changed.routes[0].overview_path, steps: changed.routes[0].legs[0].steps}, coords, data.dates, drawCharts);
+    
     console.log(changed);
     console.log(prepareRouteSubmission());
   });
+  
+  restoreMapToDefault();
 }
 
 function addMarker(coords) {
@@ -659,19 +692,21 @@ function polygonRightClick(e) {
   this.setMap(null);
   delete mapEvents.polygons[mapEvents.polygons.indexOf(this)];
   mapEvents.tooltip.clearToolTip();
-  e.stop();
+  
+  if (e)
+    e.stop();
 }
 
 function polygonClick(e) {
   const position = {
-    x: e.Ba.x + window.scrollX,
-    y: e.Ba.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
+    x: e.ta.x + window.scrollX,
+    y: e.ta.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
   };
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.Ba.x + followerLimits.width > mapLimits.right)
+  if (e.ta.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
-  if (e.Ba.y + followerLimits.height > mapLimits.bottom)
+  if (e.ta.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);
@@ -679,14 +714,18 @@ function polygonClick(e) {
   follower.classList.remove('visible');
   follower.style.transform = `translate(${position.x}px, ${position.y}px)`;
   follower.classList.add('visible');
-  follower.querySelector('.data').innerHTML = this['data'] === undefined ? 
-    `<p>'waiting for data'</p>` : 
-    `<p>Records:       <span>${this['data'][this['data'].length - 1].records}</span></p>` + 
-    `<p>Cars number:   <span>${this['data'].length - 1}</span></p>` + 
-    `<p>Trips number:  <span>${this['data'][this['data'].length - 1].trip_count}</span></p>` + 
-    `<p>Highest speed: <span>${this['data'][this['data'].length - 1].speed_max}</span></p>` + 
-    `<p>Average speed: <span>${this['data'][this['data'].length - 1].speed_avg}</span></p>` + 
-    `<p>Average rate:  <span>${this['data'][this['data'].length - 1].rate_avg}</span></p>`;
+  
+  follower.querySelector('.data').innerHTML = 
+    (!this.data)
+    ?  `<p class="text-center">'waiting for data'</p>` 
+    : (this.data.length === 0)
+      ? `<p class="text-center">No data found in this area</p>`
+      :  `<p>Records:       <span>${this['data'][this['data'].length - 1].records}</span></p>` + 
+        `<p>Cars number:   <span>${this['data'].length - 1}</span></p>` + 
+        `<p>Trips number:  <span>${this['data'][this['data'].length - 1].trip_count}</span></p>` + 
+        `<p>Highest speed: <span>${this['data'][this['data'].length - 1].speed_max}</span></p>` + 
+        `<p>Average speed: <span>${this['data'][this['data'].length - 1].speed_avg}</span></p>` + 
+        `<p>Average rate:  <span>${this['data'][this['data'].length - 1].rate_avg}</span></p>`;
 
   mapEvents.tooltip.timeout = setTimeout(() => {
     follower.classList.remove('visible');
@@ -729,6 +768,10 @@ function createPolygon() {
   });
 }
 
+function clearAllPolygons() {
+  mapEvents.polygons.forEach(polygon => polygonRightClick.bind(polygon)());
+}
+
 function drawLine(path, map) {
   const polyline = new google.maps.Polyline({
     path: path,
@@ -746,7 +789,13 @@ function drawLine(path, map) {
   }
 }
 
+function restoreMapToDefault(e) {
+  map.setCenter(mapEvents.mapSettings.center);
+  map.setZoom(mapEvents.mapSettings.zoom);
+}
+
 function addMapEvents(map) {
+  let timeout = null;
   
   mapDiv.addEventListener('mousedown', mapDivMouseDown);
   
@@ -783,14 +832,32 @@ function addMapEvents(map) {
     google.maps.event.addListener(marker, 'dblclick', markerMouseDoubleClick);
     google.maps.event.addListener(marker, 'rightclick', markerMouseRightClick);
   });
-  map.addListener('mousemove', (e) => {
-
-  });
+  map.addListener('mousemove', (e) => {});
   map.addListener('drag', mapEvents.tooltip.clearToolTip);
   map.addListener('bounds_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('center_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('zoom_changed', mapEvents.tooltip.clearToolTip);
   map.addListener('click', mapEvents.tooltip.clearToolTip);
+  map.addListener('center_changed', (e)  => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const center = map.getCenter();
+      
+      getJSON(`http://maps.googleapis.com/maps/api/geocode/json?latlng=${center.lat()},${center.lng()}&sensor=true`, (error, data) =>{
+        if (!error) {
+          let address = data.results[0].formatted_address;
+          
+          if (address.split(' ')[0] === 'Unnamed')
+            address = data.results[2].formatted_address;
+            
+          centerSpan.innerHTML = address;
+          return ;
+        }
+      });
+
+    }, 100);
+    
+  });
 }
 
 function printRouteData(error, result) {
@@ -852,10 +919,13 @@ function drawCharts(error, result, start, end) {
   let keys = Object.keys(result);
   let options = {
     hAxis: {
-      title: 'Date'
+      title: 'Date',
     },
     vAxis: {
-      title: 'Time'
+      title: 'Time',
+      viewWindow: {
+        min: 0
+      }
     },
     backgroundColor: '#fff'
   };
@@ -866,7 +936,7 @@ function drawCharts(error, result, start, end) {
   }
   
   data.addColumn('string', 'Date');
-  data.addColumn('number', 'Time');
+  data.addColumn('number', 'T(minutes)'); // short for Time
   data['size'] = keys.length - 2;
 
   keys.splice(2, keys.length - 2).forEach(date => {
@@ -885,7 +955,7 @@ function drawCharts(error, result, start, end) {
   
   drawChart(document.querySelector('#overall-chart'), data, options);
   drawChartByDay(1);
-  fetchWeatherApi(start, end, result, processDataForLearning);
+ // fetchWeatherApi(start, end, result, processDataForLearning);
 }
 
 function drawChartByDay(day) {
@@ -897,14 +967,17 @@ function drawChartByDay(day) {
       title: 'Day time'
     },
     vAxis: {
-      title: 'Time'
+      title: 'Time',
+      viewWindow: {
+        min: 0
+      }
     },
     backgroundColor: '#fff'
   };
   
   day--;
   data.addColumn('string', 'Day time');
-  data.addColumn('number', 'Time');
+  data.addColumn('number', 'T(minutes)');
   data.addRows([
     ['M', mapEvents.chartData[chartPagination.dates[day]].morning.time],
     ['N', mapEvents.chartData[chartPagination.dates[day]].noon.time],
@@ -920,6 +993,17 @@ function drawChart(element, data, options) {
   chart.draw(data, options);
 }
 
+function resizeWindow(e = null) {
+  const goldenNugget = (1 + Math.sqrt(5)) / 2;
+  const rect = mapDiv.getBoundingClientRect();
+  const width = rect.width;
+  const height = rect.height;
+  
+  mapDiv.style.height = `${width / goldenNugget}px`
+  mapLimits = mapDiv.getBoundingClientRect();;
+}
+
+/*
 function limits(low, high) {
   this.low  = low;
   this.high = high;
@@ -1108,7 +1192,7 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
   });
   
 }
-
+*/
 (function _init() {
   filterButton.addEventListener('click', (e) => {
     if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
@@ -1133,10 +1217,21 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
       getPage(page, pagination.trip_id);
   });
   
+  restoreButton.addEventListener('click', restoreMapToDefault);
+  
+  clearButton.addEventListener('click',clearAllPolygons);
+  
+  resizeWindow();
+  
+  window.addEventListener('resize', debounce(resizeWindow, 10, true));
+  
+  
   initList();
   initCharts();
 })();
 
+
+/*
 getJSON('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=e6c45ad7e2a1491f9be95818170904&q=Cluj-Napoca&format=json&date=2016-11-05&enddate=2016-11-30&tp=1', (error ,response) => {
     const hourly = [];
     
@@ -1176,3 +1271,4 @@ getJSON('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=e6c4
     
     console.log(hourly);
 });
+*/

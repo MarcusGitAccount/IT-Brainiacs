@@ -7,7 +7,7 @@ const BaseModel = require('../../system/helpers/BaseModel');
 class Entries extends BaseModel {
   constructor(data) {
     super(data);
-    this.tableName = 'entries';
+    this.tableName = 'dynaprice_entries';
   }
   
   tripSize(where, callback) {
@@ -57,7 +57,7 @@ class Entries extends BaseModel {
     const statement = mysql.format(`select car_qnr, count(distinct trip_id) as "trip_count", count(trip_id) as "records", 
     round(min(speed), 2) as "speed_min", round(max(speed), 2) as "speed_max", round(avg(coalesce(speed, 0)), 2) as "speed_avg", 
     round(avg(coalesce(rate, 0)), 2) as "rate_avg" 
-    from entries where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')'))) 
+    from ?? where contains(GeomFromText('polygon((${polygon}))'), GeomFromText(concat('point(', lat, ' ', lon, ')'))) 
     group by car_qnr with rollup`, [this.tableName]);
     
     console.log(statement);
