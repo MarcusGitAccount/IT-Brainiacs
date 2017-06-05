@@ -1232,6 +1232,7 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
 
 
 /*
+
 getJSON('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=e6c45ad7e2a1491f9be95818170904&q=Cluj-Napoca&format=json&date=2016-11-05&enddate=2016-11-30&tp=1', (error ,response) => {
     const hourly = [];
     
