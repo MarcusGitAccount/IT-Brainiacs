@@ -13,6 +13,9 @@ module.exports = {
     },
     entries: {
       auto_increment: false
+    },
+    consolidated: {
+      auto_increment: true
     }
   },
   distanceSI: {

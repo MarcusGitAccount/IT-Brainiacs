@@ -26,6 +26,23 @@
         <button id="clear" type="button" class="btn btn-brown">Clear polygons</button>
         <span id="center" class="ubuntu">Currently centered on: <span id="map-center" style="color: #fb8c00;">processing location</span></span>
       </div>
+      <div id="prediction" class="row">
+        <div class="col-md-3 col-sm-4">
+          <p>Tommorow's avg speed on:</p>
+        </div>
+        <div class="col-md-3 col-sm-3">&nbsp
+          <input type="radio" id="type-1" name="select-api" data-choice="motilor"> 
+          <label for="type-1" class="label-select">Moților Street</label>
+        </div>
+        <div class="col-md-3 col-sm-3">&nbsp
+          <input type="radio" id="type-2" name="select-api" data-choice="city">
+          <label for="type-2" class="label-select">Whole City</label>
+        </div>
+         <div class="col-md-3 col-sm-1">
+          <button class="btn btn-brown" id="preddict-button">Preddict</button>
+        </div>
+        
+      </div>
     </div>
     <div class="row">
       <div class="row">
@@ -37,6 +54,12 @@
           </div>
           <div class="panel-body ubuntu">
             <div class="row" id="received-data"></div>
+            <div id="p" class="hidden">
+              <div class="middle">
+                <p>Prediction traffic data for tomorrow</p>
+              </div>
+              <div id="prediction-chart"></div>
+            </div>
             <div id="charts" class="">
               <div>
                 <div class="middle"><p>Total distance: <span id="km">9.54km</span></p></div>

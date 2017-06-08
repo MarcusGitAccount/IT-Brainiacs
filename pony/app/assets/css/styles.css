@@ -681,11 +681,67 @@ table tr {
 
 @media screen and (max-width: 991px) and (min-width: 500px) {
   #center {
-    margin-top: 0;
+    margin-top: 1vh;
     display: inline-block
+  }
+  #state-buttons {
+    margin-bottom: 1vh;
   }
 }
 
 .text-center {
   text-align: center;
 }
+
+@media screen and (max-width: 775px) {
+  .auth {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+}
+
+#prediction {
+  color: #fff;
+  margin-bottom: 2vh;
+}
+
+#prediction > label {
+  font-size: 14px;
+  letter-spacing: .1px;
+  position: relative;
+}
+
+#prediction label:hover {
+  cursor: pointer;
+}
+
+#prediction label:before {
+  position: absolute;
+  content: "";
+  left: 5px;
+  top: 0;
+  height: 1.2em;
+  width: 1.2em;
+  border: 1px solid #fb8c00;
+  border-radius: 50%;
+  color: #fff;
+  text-align: center;
+  line-height: 1.2em;
+  transition: .75s all;
+  margin-left: 8.5px;
+}
+
+#prediction input[type=radio] {
+  transform: translateX(-200vw);
+}
+
+#prediction input[type=radio]:checked ~ label:before {
+  background: #fb8c00;
+  content: '✔';
+  transform: scate(.8) scale(1.1) scale(1);
+}
+
+.set {
+  margin-left: 15px;
+}
+

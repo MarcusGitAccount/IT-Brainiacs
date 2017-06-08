@@ -132,6 +132,9 @@ const restoreButton = document.querySelector('#restore');
 const clearButton = document.querySelector('#clear');
 const centerSpan = document.querySelector('#map-center');
 
+const radioButtonsForApiChoice = document.querySelectorAll('#prediction input[type=radio]')
+const predictionSubmitButton = document.querySelector('#preddict-button');
+
 class PanelLogic {
   constructor() {
     this.squareAnimationHTML = `
@@ -337,6 +340,44 @@ let chartPagination = {
   MAX: null,
   current: 1,
   dates: []
+}
+
+
+function Countdown() {
+  this.setTimer = function (delay, times, updateFunction, callback) {
+    this.times = times;
+    this.delay = delay;
+    this.interval = setInterval(updateFunction.bind(this), delay);
+
+    const timeOutCallback= () => {
+      callback();
+      clearInterval(this.interval);
+    }
+
+    this.timeout = setTimeout(timeOutCallback.bind(this), (times + 1) * delay);
+  }
+
+  this.clearAll = () => {
+    if (this.interval) 
+      clearInterval(this.interval);
+    if (this.timeout) 
+      clearTimeout(this.timeout);
+  }
+}
+
+function smoothScrollTo(start, end, total, delay) {
+  const timer = new Countdown();
+  const times = total / delay;
+
+  const SCROLL_X = (end.x - start.x) / times;
+  const SCROLL_Y = (end.y - start.y) / times;
+
+  console.log(SCROLL_X, SCROLL_Y, times)
+
+  const updateFunction = () => window.scrollBy(SCROLL_X, SCROLL_Y);
+  const callback = () => window.scrollTo(end.x, end.y);
+
+  timer.setTimer(delay, times, updateFunction, callback);
 }
 
 function debounce(func, wait = 20, immediate = true){
@@ -866,6 +907,7 @@ function printRouteData(error, result) {
     return ;
   };
   
+  document.querySelector('#p').classList.add('hidden');
   routePanelLogic.charts.classList.remove('display-charts');
   routePanelLogic.dataDiv.innerHTML = `
     <div class="col-lg-4 col-xl-3 col-sm-6 route-data">
@@ -948,6 +990,7 @@ function drawCharts(error, result, start, end) {
     chartPagination.dates = Object.keys(result).splice(2, Object.keys(result).length - 2).sort();
   }
   
+  document.querySelector('#p').classList.add('hidden');
   routePanelLogic.charts.classList.add('display-charts');
   routePanelLogic.charts.querySelector('span#km').innerHTML = `${result.distance}km`;
   mapEvents.chartData = result;
@@ -1001,6 +1044,84 @@ function resizeWindow(e = null) {
   
   mapDiv.style.height = `${width / goldenNugget}px`
   mapLimits = mapDiv.getBoundingClientRect();;
+}
+
+function radiotButtonChange(e) {
+  mapEvents['api'] = this.dataset.choice;
+}
+
+function fetchPredictionApi(url, data) {
+  return new Promise((resolve, reject) => {
+    const XHR = new XMLHttpRequest();
+    const DATA = JSON.stringify(data);
+    const KEY = '1ZaaNEQjoj8/CHcU/EdnHzYI7i8Uxzo5jJrfDntQHhvvKuEfAwEv+pTSJYkWhcXsQm3o3IIMSnDa0lUj/Im4Gw==';
+    
+    
+    if (!url) return reject(new Error('Empty url.'));
+    
+    XHR.open('POST', url, true);
+    
+    XHR.setRequestHeader('Authorization', `Bearer ${KEY}`);
+    XHR.setRequestHeader('Content-type', 'application/json');
+    XHR.setRequestHeader('Accept', 'application/json');
+    
+    XHR.onreadystatechange = () => {
+      if (XHR.readyState === 4 && XHR.status === 200) {
+        const response = JSON.parse(XHR.responseText);
+        
+        return resolve(response);
+      }
+    };
+    XHR.send();
+  });
+}
+
+
+function preddictButton(e) {
+  if (!mapEvents.api) {
+    alert('Please select a traffic location to be analised');
+    return ;  
+  }
+
+  routePanelLogic.dataDiv.innerHTML = routePanelLogic.squareAnimationHTML;
+  routePanelLogic.charts.classList.remove('display-charts');
+  
+  fetch(`${window.location.origin}/api/entries/learn/${mapEvents.api}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(response => {
+      const data = new google.visualization.DataTable();
+      const options = {
+        hAxis: {
+          title: 'Hour',
+        },
+        vAxis: {
+          title: 'Speed',
+          viewWindow: {
+            min: 0
+          }
+        },
+        backgroundColor: '#fff'
+      };
+      
+      data.addColumn('number', 'Hour');
+      data.addColumn('number', 'Speed');
+      data['size'] =  response.Results.output1.value.Values.length;
+      
+      response.Results.output1.value.Values.forEach((item, index) => {
+        data.addRow([index, parseInt(item[item.length - 2].substr(0, 4))]);
+      });;
+      
+      routePanelLogic.dataDiv.innerHTML = '';
+      
+      document.querySelector('#p').classList.remove('hidden');
+      drawChart(document.querySelector('#prediction-chart'), data, options);
+    })
+    .catch(error => {
+      console.error(error);
+      routePanelLogic.dataDiv.innerHTML = routePanelLogic.errorHTML
+    });
 }
 
 /*
@@ -1193,6 +1314,7 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
   
 }
 */
+
 (function _init() {
   filterButton.addEventListener('click', (e) => {
     if (parseInt(filterTextBox.value) !== pagination.trip_id && parseInt(filterTextBox.value))
@@ -1225,7 +1347,9 @@ function fetchWeatherApi(start = '2016-11-05', end = '2016-11-08', result, callb
   
   window.addEventListener('resize', debounce(resizeWindow, 10, true));
   
-  
+  radioButtonsForApiChoice.forEach(i => i.addEventListener('change', radiotButtonChange));
+  predictionSubmitButton.addEventListener('click', preddictButton);
+
   initList();
   initCharts();
 })();

@@ -12,6 +12,9 @@ const homeRoute = require('./app/routes/HomeRouter')();
 const authenticationRoute = require('./app/routes/AuthenticationRouter')();
 const middleware = require('./system/helpers/Middleware');
 
+const LearningSet = require('./app/models/LearningSetModel');
+
+//const _set = new LearningSet(); 
 
 const User = require('./app/models/User');
 const user = new User();
@@ -67,5 +70,3 @@ app.use('*', (request, response) => {
 const listener = app.listen(8080, process.env.IP, () => {
   console.log(`Server up and running on http://${listener.address().address}:${listener.address().port}`);
 });
-
-console.log(__dirname)

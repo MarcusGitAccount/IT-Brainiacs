@@ -19,7 +19,7 @@ module.exports = (function route() {
   router.post('/inpolygon', entries.tripsInPolygon);
   router.post('/routedata', entries.routeData); 
   router.post('/betweendates', entries.routeBetweenDates);
-  router.post('/learn', entries.learn);
+  router.get('/learn/:type', entries.learn);
   
   return router;
 });
