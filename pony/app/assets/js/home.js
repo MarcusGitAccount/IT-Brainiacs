@@ -146,7 +146,7 @@ class PanelLogic {
       </div>`;
     this.errorHTML = `
       <div class="loading-animation-container">
-        <p class="ubuntu">Error while dislaying data. Or maybe no data registered.</p>
+        <p class="ubuntu">Error while displaying data. Or maybe no data registered.</p>
       </div>
     `;
     this.waitingAnimtionHTML = `
@@ -232,8 +232,8 @@ class PanelLogic {
   initialDatesInputsValues() {
     const date = this.getTodayDateFormat();
     
-    this.dateInputs[0].value = '2016-11-05';
-    this.dateInputs[1].value = '2016-11-08';
+    this.dateInputs[0].value = '2017-05-16';
+    this.dateInputs[1].value = '2017-05-23';
     //this.dateInputs.forEach(input => input.value = date);
   }
 }
@@ -267,7 +267,10 @@ let mapEvents = {
   tooltip: {
     timeout: null,
     timeoutTime: 5000,
-    clearToolTip: () => {
+    clearToolTip: (e) => {
+      if (e)
+        console.log({lat: e.latLng.lat(), lng: e.latLng.lng()})
+      
       follower.classList.remove('visible');
     }
   },
@@ -342,7 +345,6 @@ let chartPagination = {
   dates: []
 }
 
-
 function Countdown() {
   this.setTimer = function (delay, times, updateFunction, callback) {
     this.times = times;
@@ -352,10 +354,10 @@ function Countdown() {
     const timeOutCallback= () => {
       callback();
       clearInterval(this.interval);
-    }
+    };
 
     this.timeout = setTimeout(timeOutCallback.bind(this), (times + 1) * delay);
-  }
+  };
 
   this.clearAll = () => {
     if (this.interval) 
@@ -415,7 +417,6 @@ function chartButtonClick(e) {
 
 function initCharts() {
   google.charts.load('current', {packages: ['corechart', 'line']});
-  //google.charts.setOnLoadCallback(drawBackgroundColor);
 }
 
 function togglePanelBody(e) {
@@ -739,15 +740,17 @@ function polygonRightClick(e) {
 }
 
 function polygonClick(e) {
+  console.log(e)
+  
   const position = {
-    x: e.ta.x + window.scrollX,
-    y: e.ta.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
+    x: e.va.x + window.scrollX,
+    y: e.va.y + window.scrollY - ((document.querySelector('.navbar-default').offsetHeight) || 0)
   };
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.ta.x + followerLimits.width > mapLimits.right)
+  if (e.v*a.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
-  if (e.ta.y + followerLimits.height > mapLimits.bottom)
+  if (e.va.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
   
   clearTimeout(mapEvents.tooltip.timeout);
@@ -977,8 +980,8 @@ function drawCharts(error, result, start, end) {
     return ;
   }
   
-  data.addColumn('string', 'Date');
-  data.addColumn('number', 'T(minutes)'); // short for Time
+  data.addColumn('string', 'date');
+  data.addColumn('number', 'minutes '); // short for Time
   data['size'] = keys.length - 2;
 
   keys.splice(2, keys.length - 2).forEach(date => {
@@ -1020,12 +1023,12 @@ function drawChartByDay(day) {
   
   day--;
   data.addColumn('string', 'Day time');
-  data.addColumn('number', 'T(minutes)');
+  data.addColumn('number', 'minutes ');
   data.addRows([
-    ['M', mapEvents.chartData[chartPagination.dates[day]].morning.time],
-    ['N', mapEvents.chartData[chartPagination.dates[day]].noon.time],
-    ['E', mapEvents.chartData[chartPagination.dates[day]].evening.time],
-    ['Ni', mapEvents.chartData[chartPagination.dates[day]].night.time]
+    ['Morning', mapEvents.chartData[chartPagination.dates[day]].morning.time],
+    ['Noon', mapEvents.chartData[chartPagination.dates[day]].noon.time],
+    ['Evening', mapEvents.chartData[chartPagination.dates[day]].evening.time],
+    ['Night', mapEvents.chartData[chartPagination.dates[day]].night.time]
   ]);
   routePanelLogic.charts.querySelector('span#time').innerHTML = `${chartPagination.dates[day]}`;
   chart.draw(data, options);
@@ -1076,6 +1079,16 @@ function fetchPredictionApi(url, data) {
   });
 }
 
+function limits(low, high) {
+  this.low = low;
+  this.high = high;
+  
+  this.checkLimit = (value) => {
+    const _value = parseFloat(value);
+    
+    return (value >= this.low && value <= this.high);
+  }
+}
 
 function preddictButton(e) {
   if (!mapEvents.api) {
@@ -1106,7 +1119,7 @@ function preddictButton(e) {
       };
       
       data.addColumn('number', 'Hour');
-      data.addColumn('number', 'Speed');
+      data.addColumn('number', 'Speed ');
       data['size'] =  response.Results.output1.value.Values.length;
       
       response.Results.output1.value.Values.forEach((item, index) => {
@@ -1124,20 +1137,9 @@ function preddictButton(e) {
     });
 }
 
-/*
-function limits(low, high) {
-  this.low  = low;
-  this.high = high;
-  
-  this.checkLimit= (value) => {
-    const nbr = parseFloat(value);
-    
-    if (nbr >= this.low && nbr <= this.high)
-      return 1;
-    return 0;
-  };
-}
 
+
+/*
 function processDataForLearning(error, weather, traffic, callback) {
   if (error) {
     console.log(error);

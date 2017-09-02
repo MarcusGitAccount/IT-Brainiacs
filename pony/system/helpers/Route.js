@@ -109,7 +109,6 @@ class Route {
     this.result.time = ((this.result.distance / 1000) / this.result.speed * 60);
     this.result.distance = (this.result.distance / 1000);
 
-
     this.result.distance = Math.round(this.result.distance * 100) / 100;
     this.result.speed = Math.round(this.result.speed * 100) / 100;
     this.result.time = Math.round(this.result.time * 100) / 100;

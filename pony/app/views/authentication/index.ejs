@@ -40,7 +40,7 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <label for="user_login_name" class="col-md-2 control-label input-margin nope">Name</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">
-                  <input name="user_login_name" type="text" class="form-control" placeholder="Enter username" required value="<% if (typeof user == 'object' && user){%><%=user.name%><%}%>">
+                  <input name="user_login_name" type="text" class="form-control" placeholder="Enter username" required value="<% if (typeof user == 'object' && user){%><%=user.name%><%}%>" autocomplete="off">
                 </div>
                 <label for="user_login_password" class="col-md-2 control-label input-margin nope">Password</label>
                 <div class="col-md-9 col-md-offset-1 input-margin">

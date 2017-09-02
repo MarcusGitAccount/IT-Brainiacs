@@ -1,0 +1,1 @@
+alias gud='add * && git commit -m well commited && git push origin master' source /home/ubuntu/.bashrc
