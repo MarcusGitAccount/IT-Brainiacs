@@ -37,6 +37,7 @@
     "express-ejs-layouts": "^2.3.0",
     "fetch-api": "0.0.2",
     "mongoose": "^4.10.4",
+    "morgan": "^1.8.2",
     "mysql": "^2.13.0",
     "node-fetch": "^1.7.1",
     "rekuire": "^0.1.9",

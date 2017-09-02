@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const ejs_layouts = require('ejs-layouts');
 const session = require('client-sessions');
+const morgan = require('morgan');
 
 const adminRoute = require('./app/routes/AdministratorsRouter')();
 const entriesRoute = require('./app/routes/EntriesRouter')();
@@ -29,6 +30,7 @@ app.set('views', path.join(__dirname, 'app/views'));
 app.set('layout extractScripts', true);
 app.locals.pretty = true;
 
+app.use(morgan('dev'))
 app.use(session(middleware.sessionObject));
 app.use(ejs_layouts.express);
 

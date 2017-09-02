@@ -748,7 +748,7 @@ function polygonClick(e) {
   };
   const wait = this.data ? mapEvents.tooltip.timeoutTime : 1000;
   
-  if (e.v*a.x + followerLimits.width > mapLimits.right)
+  if (e.va.x + followerLimits.width > mapLimits.right)
     position.x  = mapLimits.right - followerLimits.width;
   if (e.va.y + followerLimits.height > mapLimits.bottom)
     position.y = mapLimits.bottom - followerLimits.height;
