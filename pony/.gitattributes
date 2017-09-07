@@ -1,0 +1,3 @@
+app/assets/bootstrap/* linguist-vendored
+app/assets/font-awesome/* linguist-vendored
+app/assets/jquery/* linguist-vendored
