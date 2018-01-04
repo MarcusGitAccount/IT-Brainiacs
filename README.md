@@ -1,12 +1,9 @@
 # IT-Brainiacs
 
 ### About
-A project aimed to try and solve city traffic. Currently it only represents a piece of a larger idea that will soon be implemented.
+A project aimed to visualise city traffic.
 
 The application is using traffic data from Cluj-Napoca(only from car sharing companies at the moment) to make analysis and predictions based on weather.
-
-### Purpose
-Increasing my backend/frontend/db dev skills and also stepping into learning more ai/deep learning. Also learning to organize my files and work on big projects to solve big problems.
 
 ### Features
 - application index
